@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Moci — Personal Robot Companion (ESP32-S3)</title>
+  <meta name="description" content="Website pendamping robot Moci berbasis ESP32-S3 N16R8 dengan galeri foto, pemutar musik, kontrol ekspresi, simulasi TFT 128x160, dan manajemen Micro SD.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/mascot.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- ========================================================== -->
+    <!-- 1. SIDEBAR NAVIGATION -->
+    <!-- ========================================================== -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-header">
+        <div class="robot-logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+            <circle cx="12" cy="5" r="2"></circle>
+            <path d="M12 7v4"></path>
+            <line x1="8" y1="16" x2="8" y2="16"></line>
+            <line x1="16" y1="16" x2="16" y2="16"></line>
+          </svg>
+        </div>
+        <div class="logo-info">
+          <span class="logo-title moci-robot-name-text">Moci</span>
+          <span class="logo-tagline">ESP32-S3 COMPANION</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-view-target="ringkasan" id="navItemRingkasan">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>Ringkasan</span>
+        </button>
+
+        <button class="nav-item" data-view-target="foto" id="navItemFoto">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <span>Foto</span>
+          <span class="nav-badge" id="navBadgePhotos">4</span>
+        </button>
+
+        <button class="nav-item" data-view-target="musik" id="navItemMusik">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+          <span>Musik</span>
+          <span class="nav-badge" id="navBadgeTracks">3</span>
+        </button>
+
+        <button class="nav-item" data-view-target="perpustakaan" id="navItemPerpustakaan">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <span>Perpustakaan</span>
+        </button>
+
+        <button class="nav-item" data-view-target="kontrol" id="navItemKontrol">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+          <span>Kontrol Moci</span>
+        </button>
+
+        <button class="nav-item" data-view-target="alarm" id="navItemAlarm">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><line x1="12" y1="2" x2="12" y2="4"></line></svg>
+          <span>Alarm</span>
+          <span class="nav-badge" id="navBadgeAlarm">3</span>
+        </button>
+
+        <button class="nav-item" data-view-target="ngobrol" id="navItemNgobrol">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <span>Ngobrol</span>
+        </button>
+
+        <button class="nav-item" data-view-target="koneksi" id="navItemKoneksi">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+          <span>Koneksi</span>
+        </button>
+
+        <button class="nav-item" data-view-target="pengaturan" id="navItemPengaturan">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>Pengaturan</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="robot-compact-status">
+          <div class="status-indicator-dot" id="sidebarStatusDot"></div>
+          <div class="compact-status-text">
+            <span class="compact-status-title">Mode Demo</span>
+            <span class="compact-status-subtitle">ESP32 Simulasi</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Backdrop -->
+    <div class="app-sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- ========================================================== -->
+    <!-- 2. MAIN APPLICATION CONTENT -->
+    <!-- ========================================================== -->
+    <main class="app-main">
+
+      <!-- Top Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Buka Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <div class="page-title-badge">
+            <h1 class="current-page-title" id="currentPageTitle">Ringkasan Moci</h1>
+            <span class="current-page-desc" id="currentPageDesc">Pusat status robot, statistik media, dan kontrol cepat.</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <span class="badge badge-demo" id="headerConnectionBadge">Mode Demo (Simulasi)</span>
+          <button class="btn btn-secondary btn-sm" data-open-modal="transferModal" title="Kirim Berkas ke Micro SD">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Transfer SD</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- ======================================================== -->
+      <!-- VIEW 1: RINGKASAN (DASHBOARD) -->
+      <!-- ======================================================== -->
+      <section class="view-section active" id="view-ringkasan">
+        
+        <!-- Interactive Mascot Hero Card -->
+        <div class="moci-mascot-card" style="margin-bottom: 24px;">
+          <h2 style="font-size: 1.35rem; color: var(--text-primary); margin-bottom: 4px;">Halo, Moci siap menemani!</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">Robot pendamping cerdas berbasis ESP32-S3 N16R8. Klik kepala Moci untuk berinteraksi!</p>
+
+          <!-- Robot Head Unit with Animated Eyes -->
+          <div class="moci-robot-wrapper expression-happy" id="mociDashboardMascot" title="Klik untuk mengganti ekspresi mata!">
+            <div class="moci-antenna">
+              <div class="moci-antenna-tip"></div>
+            </div>
+            <div class="moci-head-chassis">
+              <div class="moci-ear moci-ear-left"></div>
+              <div class="moci-ear moci-ear-right"></div>
+              <div class="moci-screen-bezel">
+                <div class="moci-eyes-container">
+                  <div class="moci-eye"></div>
+                  <div class="moci-eye"></div>
+                </div>
+                <div class="moci-voice-meter">
+                  <div class="voice-dot"></div>
+                  <div class="voice-dot"></div>
+                  <div class="voice-dot"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Robot Speech Bubble -->
+          <div class="moci-speech-bubble">
+            <span class="moci-speech-text">Halo, Moci siap menemani!</span>
+          </div>
+        </div>
+
+        <!-- System Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="stat-details">
+              <div class="stat-value"><span class="badge badge-demo">Simulasi</span></div>
+              <div class="stat-label">Status ESP32-S3</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon cyan">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </div>
+            <div class="stat-details">
+              <div class="stat-value" id="dashTotalPhotos">4</div>
+              <div class="stat-label">Total Foto Galeri</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon coral">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+            </div>
+            <div class="stat-details">
+              <div class="stat-value" id="dashTotalTracks">3</div>
+              <div class="stat-label">Total Lagu Musik</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon amber">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            </div>
+            <div class="stat-details">
+              <div class="stat-value">14.2 GB</div>
+              <div class="stat-label">Sisa Micro SD (16GB)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <div class="card-title-group">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              <h3>Aksi Cepat Moci</h3>
+            </div>
+          </div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="btnQuickPlayMusic">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <span>Putar Musik</span>
+            </button>
+            <button class="btn btn-secondary" id="btnQuickOpenGallery">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+              <span>Buka Galeri</span>
+            </button>
+            <button class="btn btn-secondary" id="btnQuickSlideshow">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              <span>Mode Slideshow</span>
+            </button>
+            <button class="btn btn-secondary" id="btnQuickOpenControl">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+              <span>Kontrol Moci</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2 Column Grid: Last Media & Activity Log -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+          <!-- Media Terakhir -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <h3>Status Media Terakhir</h3>
+              </div>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <div>
+                <span class="form-label">Musik Terakhir Diputar</span>
+                <div id="dashLastTrackCard" style="background:var(--bg-tertiary); padding:12px; border-radius:10px; border:1px solid var(--border-subtle);">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+
+              <div>
+                <span class="form-label">Foto Terakhir Ditampilkan</span>
+                <div id="dashLastPhotoCard" style="background:var(--bg-tertiary); padding:12px; border-radius:10px; border:1px solid var(--border-subtle);">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Timeline -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                <h3>Aktivitas Terbaru</h3>
+              </div>
+            </div>
+            <div class="activity-timeline" id="dashActivitiesList">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- VIEW 2: FOTO (GALLERY) -->
+      <!-- ======================================================== -->
+      <section class="view-section" id="view-foto">
+        <div class="section-header">
+          <div class="section-header-info">
+            <h2>Galeri Foto Robot Moci</h2>
+            <p>Unggah dan kelola foto yang akan ditampilkan pada layar TFT 1.8" (128×160 piksel).</p>
+          </div>
+          <div class="section-actions">
+            <button class="btn btn-secondary btn-slideshow-toggle" onclick="window.mociGallery.toggleSlideshow()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <span>Mulai Slideshow</span>
+            </button>
+            <label class="btn btn-primary" for="photoFileInput" style="margin-bottom:0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Unggah Foto</span>
+            </label>
+            <input type="file" id="photoFileInput" accept="image/*" multiple style="display:none;">
+          </div>
+        </div>
+
+        <!-- Drag & Drop Zone -->
+        <div class="dropzone" id="photoDropzone" style="margin-bottom: 24px;" onclick="document.getElementById('photoFileInput').click()">
+          <div class="dropzone-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          </div>
+          <div class="dropzone-title">Tarik & Letakkan Foto di Sini</div>
+          <div class="dropzone-desc">Mendukung format JPG, PNG, BMP, dan SVG. Gambar akan disesuaikan untuk layar TFT 128×160.</div>
+        </div>
+
+        <!-- Search, Filter & Sort Controls -->
+        <div class="card" style="padding:16px; margin-bottom:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+            <div class="tab-bar">
+              <button class="tab-btn photo-filter-btn active" data-filter="all">Semua Foto</button>
+              <button class="tab-btn photo-filter-btn" data-filter="favorite">Favorit ⭐</button>
+              <button class="tab-btn photo-filter-btn" data-filter="local">Lokal Browser</button>
+              <button class="tab-btn photo-filter-btn" data-filter="sd">Micro SD Moci</button>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <div class="search-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="photoSearchInput" class="form-input" placeholder="Cari nama foto...">
+              </div>
+
+              <select class="form-select" id="photoSortSelect" style="width:160px;">
+                <option value="newest">Terbaru</option>
+                <option value="oldest">Terlama</option>
+                <option value="name">Nama (A-Z)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Photos Grid -->
+        <div class="photos-grid" id="photosGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px;">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- TFT 128x160 Spec Info Box -->
+        <div class="card" style="margin-top: 28px; background: rgba(0, 245, 212, 0.03); border-color: rgba(0, 245, 212, 0.2);">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="font-size:1.8rem; color:var(--accent-mint);">📺</div>
+            <div>
+              <h4 style="color:var(--text-primary); font-size:0.95rem;">Informasi Tampilan TFT 1,8 Inci (128×160 Piksel)</h4>
+              <p style="font-size:0.82rem; color:var(--text-muted); margin-top:2px;">
+                Layar fisik Moci menggunakan modul SPI ST7735 beresolusi 128×160 piksel dalam orientasi potret. Pada mode demo, foto disimpan secara lokal di browser dan dipratinjau dalam rasio yang sama.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- VIEW 3: MUSIK (MUSIC STUDIO) -->
+      <!-- ======================================================== -->
+      <section class="view-section" id="view-musik">
+        <div class="section-header">
+          <div class="section-header-info">
+            <h2>Music Studio Moci</h2>
+            <p>Putar koleksi audio favorit, kelola lagu lokal, dan dengarkan sampel synthesizer robot.</p>
+          </div>
+          <div class="section-actions">
+            <label class="btn btn-primary" for="audioFileInput" style="margin-bottom:0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Unggah Lagu</span>
+            </label>
+            <input type="file" id="audioFileInput" accept="audio/*" multiple style="display:none;">
+          </div>
+        </div>
+
+        <!-- Music Hero Card: Now Playing & Frequency Visualizer -->
+        <div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(23, 35, 61, 0.8) 0%, rgba(10, 15, 29, 0.95) 100%);">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px;">
+            <div style="display:flex; align-items:center; gap:18px;">
+              <div style="width:72px; height:72px; border-radius:var(--radius-sm); background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:var(--text-inverse); box-shadow:var(--shadow-glow); flex-shrink:0;">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+              </div>
+              <div>
+                <span class="badge now-playing-source badge-robot" style="margin-bottom:6px;">Micro SD Moci</span>
+                <h3 class="now-playing-title" style="font-size:1.3rem; margin-bottom:4px;">Moci Friendly Chime</h3>
+                <p class="now-playing-artist" style="font-size:0.88rem; color:var(--text-muted);">ESP32 Synth Engine</p>
+              </div>
+            </div>
+
+            <!-- Dynamic Animated Frequency Bars -->
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+              <div class="audio-visualizer-bars">
+                <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
+                <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
+                <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
+              </div>
+              <span style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">SPEAKER BROWSER (SIMULASI)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notice: Audio Playback Clarification & YouTube Constraints -->
+        <div class="card" style="margin-bottom: 24px; border-left: 4px solid var(--accent-cyan); padding: 14px 18px;">
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <div style="font-size:0.84rem; color:var(--text-secondary); line-height:1.5;">
+              <strong style="color:var(--text-primary);">Sumber Pemutaran Musik:</strong> Lagu di halaman ini diputar secara lokal melalui browser. Pada robot fisik, pemutaran audio memanfaatkan modul I2S DAC MAX98357A dan speaker 8Ω 2W membaca berkas dari Micro SD. Mengenai YouTube: tautan video YouTube tidak dapat diputar langsung tanpa API konversi resmi pihak ketiga karena batasan CORS dan Terms of Service.
+            </div>
+          </div>
+        </div>
+
+        <!-- Music Track List Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+              <h3>Daftar Putar Lagu</h3>
+            </div>
+          </div>
+
+          <div id="musicTrackList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- VIEW 4: PERPUSTAKAAN (MEDIA LIBRARY) -->
+      <!-- ======================================================== -->
+      <section class="view-section" id="view-perpustakaan">
+        <div class="section-header">
+          <div class="section-header-info">
+            <h2>Perpustakaan Media Moci</h2>
+            <p>Arsip terpadu seluruh berkas foto dan audio yang tersimpan di memori browser maupun Micro SD robot.</p>
+          </div>
+          <div class="section-actions">
+            <button class="btn btn-secondary btn-sm" data-open-modal="transferModal">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <span>Antrean Transfer</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Storage Capacity Bar -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-weight:700; font-size:0.92rem; color:var(--text-primary);">Kapasitas Micro SD (Simulasi FAT32 16GB)</span>
+            <span style="font-size:0.82rem; font-family:var(--font-mono); color:var(--accent-mint);">1.8 GB / 16.0 GB (11% Terpakai)</span>
+          </div>
+          <div style="width:100%; height:8px; background:var(--bg-surface); border-radius:var(--radius-full); overflow:hidden;">
+            <div style="width:11%; height:100%; background:var(--accent-gradient); border-radius:var(--radius-full);"></div>
+          </div>
+        </div>
+
+        <!-- Library Filter Tabs -->
+        <div class="card" style="padding:14px; margin-bottom:20px;">
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="document.querySelectorAll('#view-perpustakaan .tab-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); window.mociUI.renderLibrary('all');">Semua Media</button>
+            <button class="tab-btn" onclick="document.querySelectorAll('#view-perpustakaan .tab-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); window.mociUI.renderLibrary('photo');">Foto Saja</button>
+            <button class="tab-btn" onclick="document.querySelectorAll('#view-perpustakaan .tab-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); window.mociUI.renderLibrary('music');">Musik Saja</button>
+            <button class="tab-btn" onclick="document.querySelectorAll('#view-perpustakaan .tab-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); window.mociUI.renderLibrary('favorite');">Favorit ⭐</button>
+            <button class="tab-btn" onclick="document.querySelectorAll('#view-perpustakaan .tab-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); window.mociUI.renderLibrary('sd');">Micro SD Moci</button>
+            <button class="tab-btn" onclick="document.querySelectorAll('#view-perpustakaan .tab-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); window.mociUI.renderLibrary('local');">Lokal Browser</button>
+          </div>
+        </div>
+
+        <!-- Library Content Table -->
+        <div class="card" id="libraryMediaList">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- VIEW 5: KONTROL MOCI -->
+      <!-- ======================================================== -->
+      <section class="view-section" id="view-kontrol">
+        <div class="section-header">
+          <div class="section-header-info">
+            <h2>Pengendali Jarak Jauh Robot Moci</h2>
+            <p>Kendalikan ekspresi wajah, tampilan idle, dan pemutaran media secara virtual.</p>
+          </div>
+          <div class="section-actions">
+            <span class="badge badge-demo">Simulasi Browser Aktif</span>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 260px 1fr; gap: 24px;" class="controls-grid">
+          
+          <!-- Virtual TFT 1.8" Screen Simulator Unit -->
+          <div class="tft-simulator-card">
+            <h4 style="font-size:0.95rem; margin-bottom:12px; color:var(--text-primary); text-align:center;">Layar TFT 1.8" Moci</h4>
+            
+            <div class="tft-simulator-bezel">
+              <div class="tft-display-content" id="tftVirtualScreen">
+                <!-- Dynamically rendered by MociMascotController -->
+              </div>
+            </div>
+
+            <div class="tft-hw-badge">128 × 160 PIXELS &bull; SPI ST7735</div>
+            <p style="font-size:0.75rem; color:var(--text-muted); text-align:center; margin-top:8px;">
+              Pratinjau langsung representasi tampilan fisik TFT Moci.
+            </p>
+          </div>
+
+          <!-- Controls Panels -->
+          <div style="display:flex; flex-direction:column; gap:20px;">
+            
+            <!-- Expression Selector Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                  <h3>Pilihan Ekspresi Mata Robot</h3>
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px;">
+                <button class="btn btn-secondary active" data-moci-expression="happy">
+                  <span>😊 Senang</span>
+                </button>
+                <button class="btn btn-secondary" data-moci-expression="excited">
+                  <span>✨ Semangat</span>
+                </button>
+                <button class="btn btn-secondary" data-moci-expression="surprised">
+                  <span>😲 Kaget</span>
+                </button>
+                <button class="btn btn-secondary" data-moci-expression="sleepy">
+                  <span>😴 Mengantuk</span>
+                </button>
+                <button class="btn btn-secondary" data-moci-expression="sad">
+                  <span>🥺 Sedih</span>
+                </button>
+                <button class="btn btn-secondary" data-moci-expression="neutral">
+                  <span>😐 Netral</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Media Playback Remote Control Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  <h3>Kendali Media & Tampilan</h3>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+                <button class="btn btn-primary" onclick="window.mociAudio.play()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  <span>Putar Musik</span>
+                </button>
+                <button class="btn btn-secondary" onclick="window.mociAudio.pause()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                  <span>Jeda Musik</span>
+                </button>
+                <button class="btn btn-secondary" onclick="window.mociAudio.nextTrack()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                  <span>Lagu Berikutnya</span>
+                </button>
+                <button class="btn btn-outline" onclick="window.mociAudio.pause(); window.mociAudio.audioEl.currentTime = 0;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+                  <span>Hentikan Musik</span>
+                </button>
+                <button class="btn btn-secondary" onclick="window.mociGallery.toggleSlideshow()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                  <span>Mulai Slideshow Foto</span>
+                </button>
+              </div>
+
+              <!-- Idle Display Setting -->
+              <div style="background:var(--bg-tertiary); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                <div style="font-weight:700; font-size:0.92rem; margin-bottom:8px;">Mode Tampilan Idle & Waktu Tunggu</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                  <div>
+                    <label class="form-label">Tampilan Saat Idle</label>
+                    <select class="form-select" id="controlIdleMode">
+                      <option value="eyes">Animasi Mata Moci</option>
+                      <option value="slideshow">Slideshow Foto Otomatis</option>
+                      <option value="off">Layar Redup / Hemat Daya</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="form-label">Waktu Sebelum Idle</label>
+                    <select class="form-select" id="controlIdleTimeout">
+                      <option value="30">30 Detik</option>
+                      <option value="60" selected>1 Menit</option>
+                      <option value="300">5 Menit</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- VIEW 6: KONEKSI (CONNECTION & IOT GATEWAY) -->
+      <!-- ======================================================== -->
+      <section class="view-section" id="view-koneksi">
+        <div class="section-header">
+          <div class="section-header-info">
+            <h2>Koneksi & Gateway IoT ESP32-S3</h2>
+            <p>Kelola komunikasi antarmuka web statis GitHub Pages dengan perangkat keras Moci.</p>
+          </div>
+          <div class="section-actions">
+            <button class="btn btn-primary" id="btnTestPing">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              <span>Uji Koneksi (Ping)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Connection Status Overview Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="stat-details">
+              <div class="stat-value"><span id="connStatusBadge" class="badge badge-demo">Mode Demo</span></div>
+              <div class="stat-label">Status Perangkat</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon cyan">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+            </div>
+            <div class="stat-details">
+              <div class="stat-value" style="font-size:1.15rem;">Moci-AP (Sim)</div>
+              <div class="stat-label">Wi-Fi Terkoneksi</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon amber">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            </div>
+            <div class="stat-details">
+              <div class="stat-value" style="font-size:1.15rem;">16 GB FAT32</div>
+              <div class="stat-label">Micro SD Status</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon coral">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="stat-details">
+              <div class="stat-value" id="connLastPingTime" style="font-size:1.15rem;">Baru saja</div>
+              <div class="stat-label">Waktu Ping Terakhir</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- WI-FI MANAGER: PEMILIHAN & PENYAMBUNGAN WI-FI ESP32-S3 -->
+        <!-- ======================================================== -->
+        <div class="card" style="margin-bottom: 24px; border: 1px solid var(--border-card-hover);">
+          <div class="card-header">
+            <div class="card-title-group">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+              <div>
+                <h3 style="font-size:1.15rem;">Pemilih Jaringan Wi-Fi ESP32-S3 (Wi-Fi Manager)</h3>
+                <span style="font-size:0.78rem; color:var(--text-muted);">Pilih SSID Wi-Fi rumah atau hotspot langsung dari web tanpa perlu ketik manual di Arduino</span>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btnScanWifi">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <span>Pindai Wi-Fi Sekitar</span>
+            </button>
+          </div>
+
+          <div class="wifi-manager-wrap">
+            <!-- Current Wi-Fi Status Bar -->
+            <div class="wifi-current-card">
+              <div class="wifi-current-info">
+                <div class="wifi-current-icon">📶</div>
+                <div>
+                  <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Status Wi-Fi Saat Ini pada ESP32:</div>
+                  <div style="font-size:1.05rem; font-weight:800; color:var(--text-primary);" id="currentWifiSsid">Moci-Companion-AP (Access Point)</div>
+                  <div style="font-size:0.8rem; color:var(--accent-mint); font-family:var(--font-mono);" id="currentWifiIp">IP: 192.168.4.1</div>
+                </div>
+              </div>
+              <button class="btn btn-outline btn-sm btn-delete-row" id="btnDisconnectWifi">Putuskan Wi-Fi</button>
+            </div>
+
+            <!-- List of Scanned Networks -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">Daftar Sinyal Wi-Fi Terdeteksi (Klik untuk Memilih):</span>
+                <span class="badge badge-demo" id="wifiScanCountBadge">Siap Memindai</span>
+              </div>
+              
+              <div class="wifi-scanned-container" id="wifiScannedList">
+                <div class="empty-state" style="padding: 18px 0;">
+                  <div style="font-size: 0.88rem; color: var(--text-muted);">
+                    Klik tombol <strong>"Pindai Wi-Fi Sekitar"</strong> di atas untuk memindai jaringan Wi-Fi di sekitar robot Moci.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wi-Fi Credentials Form -->
+            <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:16px;">
+              <div style="font-weight:700; font-size:0.92rem; margin-bottom:12px; color:var(--text-primary);">Hubungkan ESP32-S3 ke Jaringan Pilihan:</div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:12px; align-items:flex-end;" class="controls-grid">
+                <div>
+                  <label class="form-label" for="inputWifiSsid">Nama SSID Wi-Fi</label>
+                  <input type="text" class="form-input" id="inputWifiSsid" placeholder="Pilih dari daftar di atas atau ketik SSID">
+                </div>
+                <div>
+                  <label class="form-label" for="inputWifiPassword">Kata Sandi Wi-Fi</label>
+                  <div class="password-input-wrapper">
+                    <input type="password" class="form-input" id="inputWifiPassword" placeholder="Masukkan password Wi-Fi">
+                    <button type="button" class="btn-toggle-password" id="btnToggleWifiPass" title="Lihat/Sembunyikan Password">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                  </div>
+                </div>
+                <button class="btn btn-primary" id="btnConnectWifiToEsp" style="white-space:nowrap;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+                  <span>Hubungkan ESP32 ke Wi-Fi Ini</span>
+                </button>
+              </div>
+
+              <div id="wifiConnectingBox" style="display:none; margin-top:14px;" class="wifi-connecting-status">
+                <svg width="20" height="20" viewBox="0 0 24 24" class="spin-icon" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line></svg>
+                <span id="wifiConnectingText">Sedang menghubungkan ESP32-S3 ke jaringan...</span>
+              </div>
+            </div>
+
+            <!-- Expandable Arduino Firmware Helper -->
+            <details style="background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:12px; font-size:0.84rem;">
+              <summary style="cursor:pointer; font-weight:700; color:var(--accent-mint); user-select:none; display:flex; align-items:center; justify-content:space-between;">
+                <span>💡 Cara Kerja: Pilih Wi-Fi di Web tanpa Ketik Manual di Arduino</span>
+                <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">Klik untuk buka panduan</span>
+              </summary>
+              <div style="margin-top:12px; color:var(--text-secondary); line-height:1.6;">
+                <ol style="margin-left:18px; margin-bottom:12px; display:flex; flex-direction:column; gap:6px;">
+                  <li><strong>Langkah 1:</strong> ESP32-S3 pertama kali dinyalakan akan memancarkan hotspot Wi-Fi sendiri bernama <code>Moci-Companion-AP</code> (IP: <code>192.168.4.1</code>).</li>
+                  <li><strong>Langkah 2:</strong> Sambungkan HP/Laptop kamu ke Wi-Fi <code>Moci-Companion-AP</code> tersebut (atau colok kabel USB-C ke laptop). Buka Web Moci.</li>
+                  <li><strong>Langkah 3:</strong> Klik tombol <strong>"Pindai Wi-Fi Sekitar"</strong> di atas. ESP32 menjalankan fungsi <code>WiFi.scanNetworks()</code> dan mengirim daftar sinyal ke web ini.</li>
+                  <li><strong>Langkah 4:</strong> Klik nama Wi-Fi rumah kamu dari daftar, ketik password, lalu klik <strong>"Hubungkan ESP32 ke Wi-Fi Ini"</strong>.</li>
+                  <li><strong>Langkah 5:</strong> ESP32 otomatis menyimpan SSID & sandi ke dalam memori Flash permanen (NVS via <code>Preferences.h</code>), lalu menyambungkan diri ke router rumah kamu dan mendapatkan alamat IP baru.</li>
+                  <li><strong>Hasil:</strong> Mulai sekarang, robot Moci akan selalu otomatis menyambung ke Wi-Fi rumah setiap kali dinyalakan. Kamu <strong>tidak perlu lagi mengedit atau mengetik manual SSID/password di kode Arduino sketch!</strong></li>
+                </ol>
+                <div style="background:var(--bg-input); border-radius:var(--radius-sm); padding:10px 14px; border:1px solid var(--border-subtle);">
+                  📄 Sketch Arduino lengkap siap upload telah disediakan di berkas: <code style="color:var(--accent-mint); font-weight:700;">arduino_firmware_wifi_manager.ino</code>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- Pilihan Metode Koneksi ke ESP32-S3 -->
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.15rem; color: var(--text-primary); margin-bottom: 6px;">Pilih Saluran Koneksi ke ESP32-S3</h3>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+            Pilih metode yang sesuai dengan skenario Anda: kabel USB-C langsung dari peramban, Wi-Fi lokal, WebSocket, atau Bluetooth.
+          </p>
+
+          <div class="connection-methods-grid" id="connMethodsGrid">
+            <!-- 1. USB Serial CDC -->
+            <div class="connection-select-card" data-conn-type="serial">
+              <div class="conn-card-header">
+                <div class="conn-card-icon">🔌</div>
+                <span class="conn-card-tag">USB CDC</span>
+              </div>
+              <div class="conn-card-title">Kabel USB Serial</div>
+              <div class="conn-card-desc">
+                Kabel USB-C langsung dari Chrome/Edge. Tanpa Wi-Fi, bebas masalah CORS, dan sangat stabil.
+              </div>
+            </div>
+
+            <!-- 2. Wi-Fi REST HTTP -->
+            <div class="connection-select-card" data-conn-type="wifi">
+              <div class="conn-card-header">
+                <div class="conn-card-icon">🌐</div>
+                <span class="conn-card-tag">HTTP / mDNS</span>
+              </div>
+              <div class="conn-card-title">Wi-Fi REST API</div>
+              <div class="conn-card-desc">
+                Komunikasi via IP Access Point (192.168.4.1) atau IP Router jaringan rumah (moci.local).
+              </div>
+            </div>
+
+            <!-- 3. WebSocket Realtime -->
+            <div class="connection-select-card" data-conn-type="websocket">
+              <div class="conn-card-header">
+                <div class="conn-card-icon">⚡</div>
+                <span class="conn-card-tag">PORT 81</span>
+              </div>
+              <div class="conn-card-title">WebSocket LAN</div>
+              <div class="conn-card-desc">
+                Koneksi dua arah instan dengan latensi ultra-rendah untuk ekspresi wajah & tombol kendali.
+              </div>
+            </div>
+
+            <!-- 4. Bluetooth BLE -->
+            <div class="connection-select-card" data-conn-type="ble">
+              <div class="conn-card-header">
+                <div class="conn-card-icon">📡</div>
+                <span class="conn-card-tag">BLE 5.0</span>
+              </div>
+              <div class="conn-card-title">Bluetooth Nirkabel</div>
+              <div class="conn-card-desc">
+                Web Bluetooth API untuk memasangkan robot secara nirkabel langsung dari browser HP / PC.
+              </div>
+            </div>
+
+            <!-- 5. Mode Demo -->
+            <div class="connection-select-card active" data-conn-type="demo">
+              <div class="conn-card-header">
+                <div class="conn-card-icon">🧪</div>
+                <span class="conn-card-tag">SIMULASI</span>
+              </div>
+              <div class="conn-card-title">Mode Demo Browser</div>
+              <div class="conn-card-desc">
+                Eksplorasi antarmuka secara mandiri tanpa memerlukan perangkat keras ESP32 fisik.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail Panel Konfigurasi Berdasarkan Metode yang Dipilih -->
+        <div class="card" style="margin-bottom: 24px;" id="connDetailCard">
+          
+          <!-- PANEL 1: USB SERIAL CDC -->
+          <div class="conn-config-panel" id="panelConnSerial" style="display:none;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span style="font-size:1.3rem;">🔌</span>
+                <h3>Konfigurasi USB Serial (Web Serial API)</h3>
+              </div>
+              <span class="badge" id="serialConnBadge">Belum Terhubung</span>
+            </div>
+
+            <p style="font-size:0.86rem; color:var(--text-secondary); margin-bottom:16px;">
+              Sambungkan kabel data USB-C dari komputer ke port ESP32-S3. ESP32-S3 memiliki native USB CDC sehingga dapat dideteksi langsung oleh peramban tanpa driver tambahan.
+            </p>
+
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:18px;">
+              <div style="width:160px;">
+                <label class="form-label">Baud Rate</label>
+                <select class="form-select" id="selectSerialBaud">
+                  <option value="9600">9600 bps</option>
+                  <option value="115200" selected>115200 bps (Standar)</option>
+                  <option value="230400">230400 bps</option>
+                  <option value="921600">921600 bps (Cepat)</option>
+                </select>
+              </div>
+
+              <div style="margin-top:22px; display:flex; gap:8px;">
+                <button class="btn btn-primary" id="btnConnectSerial">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v10"></path><path d="M18.4 6.6a9 9 0 1 1-12.77.04"></path></svg>
+                  <span>Sambungkan Port USB Serial</span>
+                </button>
+                <button class="btn btn-danger" id="btnDisconnectSerial" style="display:none;">
+                  <span>Putuskan Serial</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Serial Terminal Console Monitor -->
+            <div class="serial-terminal-wrap">
+              <div class="serial-terminal-header">
+                <span>SERIAL MONITOR ESP32-S3 (TX/RX)</span>
+                <button class="btn btn-outline btn-sm" id="btnClearSerialLog" style="padding:2px 8px; font-size:0.75rem;">Bersihkan Log</button>
+              </div>
+              <div class="serial-terminal-log" id="serialTerminalLog">
+                <div class="serial-log-line serial-log-info">
+                  <span class="serial-log-time">System</span>
+                  <span>Menunggu koneksi serial. Klik "Sambungkan Port USB Serial" untuk memilih port COM ESP32-S3.</span>
+                </div>
+              </div>
+              <div class="serial-command-bar">
+                <input type="text" class="form-input" id="inputSerialCmd" placeholder='Ketik perintah JSON, contoh: {"cmd":"expression","val":"happy"}'>
+                <button class="btn btn-secondary btn-sm" id="btnSendSerialCmd">Kirim</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL 2: WI-FI REST HTTP -->
+          <div class="conn-config-panel" id="panelConnWifi" style="display:none;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span style="font-size:1.3rem;">🌐</span>
+                <h3>Konfigurasi Wi-Fi REST API (Local LAN / AP)</h3>
+              </div>
+              <span class="badge" id="wifiConnBadge">Siap Dihubungkan</span>
+            </div>
+
+            <p style="font-size:0.86rem; color:var(--text-secondary); margin-bottom:16px;">
+              Pastikan laptop atau HP Anda terhubung ke Access Point robot (misal: <strong>Moci-Companion-AP</strong>) atau berada pada jaringan Wi-Fi rumah yang sama.
+            </p>
+
+            <div style="display:grid; grid-template-columns: 2fr 1fr; gap:16px; margin-bottom:16px;" class="controls-grid">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Alamat IP / Hostname ESP32-S3</label>
+                <input type="text" class="form-input" id="inputDeviceIp" placeholder="http://192.168.4.1 atau http://moci.local" value="http://192.168.4.1">
+                <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:4px;">
+                  Default AP ESP32: <code>http://192.168.4.1</code> | mDNS: <code>http://moci.local</code>
+                </span>
+              </div>
+
+              <div style="display:flex; align-items:flex-end; gap:8px;">
+                <button class="btn btn-secondary" id="btnSaveDeviceIp" style="flex:1;">Simpan Alamat</button>
+                <button class="btn btn-primary" id="btnPingWifi">Uji Ping</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL 3: WEBSOCKET REALTIME -->
+          <div class="conn-config-panel" id="panelConnWebsocket" style="display:none;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span style="font-size:1.3rem;">⚡</span>
+                <h3>Konfigurasi WebSocket Realtime (Port 81)</h3>
+              </div>
+              <span class="badge" id="wsConnBadge">Terputus</span>
+            </div>
+
+            <p style="font-size:0.86rem; color:var(--text-secondary); margin-bottom:16px;">
+              WebSocket memberikan transmisi data instan (di bawah 10ms) untuk menggerakkan ekspresi mata, tombol kendali, dan menerima telemetri baterai/sensor secara live.
+            </p>
+
+            <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+              <div class="form-group" style="flex:1; min-width:240px; margin-bottom:0;">
+                <label class="form-label">WebSocket URL Target</label>
+                <input type="text" class="form-input" id="inputWsUrl" value="ws://192.168.4.1:81" placeholder="ws://192.168.4.1:81">
+              </div>
+              <button class="btn btn-primary" id="btnConnectWs">Hubungkan WebSocket</button>
+              <button class="btn btn-danger" id="btnDisconnectWs" style="display:none;">Putuskan</button>
+            </div>
+          </div>
+
+          <!-- PANEL 4: BLUETOOTH BLE -->
+          <div class="conn-config-panel" id="panelConnBle" style="display:none;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span style="font-size:1.3rem;">📡</span>
+                <h3>Konfigurasi Web Bluetooth (BLE 5.0)</h3>
+              </div>
+              <span class="badge" id="bleConnBadge">Standby</span>
+            </div>
+
+            <p style="font-size:0.86rem; color:var(--text-secondary); margin-bottom:16px;">
+              Memanfaatkan Web Bluetooth API untuk menghubungkan browser langsung ke chip radio BLE pada ESP32-S3 tanpa memerlukan router atau hotspot Wi-Fi.
+            </p>
+
+            <div style="display:flex; gap:12px; align-items:center;">
+              <button class="btn btn-primary" id="btnConnectBle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"></polyline></svg>
+                <span>Pindai & Pasangkan Bluetooth Moci</span>
+              </button>
+              <button class="btn btn-danger" id="btnDisconnectBle" style="display:none;">Putuskan BLE</button>
+            </div>
+          </div>
+
+          <!-- PANEL 5: MODE DEMO -->
+          <div class="conn-config-panel" id="panelConnDemo">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span style="font-size:1.3rem;">🧪</span>
+                <h3>Mode Demo (Simulasi Browser Aktif)</h3>
+              </div>
+              <span class="badge badge-demo">Simulasi Aktif</span>
+            </div>
+
+            <p style="font-size:0.86rem; color:var(--text-secondary); line-height:1.6;">
+              Pada mode ini, seluruh respon robot (TFT 1.8", baterai 3.82V, penyimpanan 16GB, ekspresi mata, dan pemutar musik) disimulasikan secara mandiri di dalam peramban web. Sangat berguna untuk pengujian antarmuka dan presentasi sebelum firmware ESP32 diunggah.
+            </p>
+
+            <div style="margin-top:14px;">
+              <button class="btn btn-secondary" onclick="window.mociUI.showToast('Simulator ESP32-S3 siap merespons seluruh perintah!', 'info')">
+                Uji Respon Simulator
+              </button>
+            </div>
+          </div>
+
+          <div id="connNoticeText" style="padding:12px; background:var(--bg-tertiary); border-radius:8px; font-size:0.85rem; color:var(--text-secondary); margin-top:16px;">
+            Data ini adalah representasi simulasi browser. Hubungkan ESP32-S3 fisik melalui Pengaturan Koneksi untuk komunikasi nyata.
+          </div>
+        </div>
+
+        <!-- Troubleshooting & Security Guidelines -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;" class="controls-grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <h3>Solusi Masalah Jaringan (Troubleshoot)</h3>
+              </div>
+            </div>
+            <ul style="padding-left:20px; font-size:0.86rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:8px;">
+              <li><strong>Mixed Content (HTTPS vs HTTP):</strong> Jika Web Moci diakses via HTTPS (GitHub Pages) dan mencoba menghubungi ESP32 via HTTP lokal, browser modern akan memblokir request. Solusinya: gunakan mDNS, proxy SSL (ngrok / Cloudflare Tunnel), atau jalankan web di jaringan lokal via HTTP.</li>
+              <li><strong>Header CORS:</strong> Firmware ESP32 wajib menyertakan header <code>Access-Control-Allow-Origin: *</code> pada respons WebServer Arduino / ESP-IDF.</li>
+              <li><strong>Satu Jaringan Wi-Fi:</strong> Pastikan HP / laptop kamu terhubung ke SSID yang sama dengan ESP32-S3.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <h3>Keamanan Kredensial</h3>
+              </div>
+            </div>
+            <ul style="padding-left:20px; font-size:0.86rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:8px;">
+              <li><strong>Tanpa Password di Frontend:</strong> Web Moci tidak pernah menyimpan kata sandi Wi-Fi atau kunci privat dalam kode statis yang dipublikasikan ke GitHub Pages.</li>
+              <li><strong>Konfigurasi Mandiri:</strong> Kredensial Wi-Fi sebaiknya dikonfigurasi melalui captive portal (WiFiManager) langsung di chip ESP32-S3.</li>
+              <li><strong>Akses Lokal:</strong> Seluruh komunikasi REST & transfer berkas berjalan secara peer-to-peer di jaringan lokal tanpa server perantara pihak ketiga.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- VIEW 7: PENGATURAN (SETTINGS) -->
+      <!-- ======================================================== -->
+      <section class="view-section" id="view-pengaturan">
+        <div class="section-header">
+          <div class="section-header-info">
+            <h2>Pengaturan Sistem Web Moci</h2>
+            <p>Sesuaikan nama robot, palet warna antarmuka, dan parameter waktu aplikasi.</p>
+          </div>
+        </div>
+
+        <form id="settingsForm">
+          <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <h3>Preferensi Karakter & Tampilan</h3>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;" class="controls-grid">
+              <div class="form-group">
+                <label class="form-label" for="settingRobotName">Nama Robot</label>
+                <input type="text" id="settingRobotName" class="form-input" value="Moci" placeholder="Masukkan nama robot">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="settingTheme">Tema Warna Antarmuka</label>
+                <select id="settingTheme" class="form-select">
+                  <option value="mint">Dark Navy + Mint Cyan (Bawaan)</option>
+                  <option value="violet">Cyber Violet + Magenta</option>
+                  <option value="gold">Cyber Gold + Warm Amber</option>
+                  <option value="emerald">Emerald Robot Wave</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="settingEyeSpeed">Kecepatan Kedip Mata Maskot</label>
+                <select id="settingEyeSpeed" class="form-select">
+                  <option value="slow">Lambat (Tiap 6 detik)</option>
+                  <option value="normal" selected>Normal (Tiap 3.8 detik)</option>
+                  <option value="fast">Cepat (Tiap 2.2 detik)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="settingSlideshowDuration">Durasi Slideshow Foto</label>
+                <select id="settingSlideshowDuration" class="form-select">
+                  <option value="3">3 Detik per foto</option>
+                  <option value="5" selected>5 Detik per foto</option>
+                  <option value="10">10 Detik per foto</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="switch-group">
+              <div class="switch-label-group">
+                <span class="switch-title">Efek Suara Chirp Interaktif</span>
+                <span class="switch-desc">Bunyikan suara bleep retro saat maskot Moci diklik atau berganti ekspresi.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="settingSoundToggle" checked>
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="switch-group">
+              <div class="switch-label-group">
+                <span class="switch-title">Volume Bawaan Pemutar Audio</span>
+                <span class="switch-desc">Tingkat kekuatan suara awal saat memutar musik (<span id="settingVolumeDisplay">80%</span>).</span>
+              </div>
+              <input type="range" id="settingDefaultVolume" class="range-slider" min="0" max="100" value="80" style="max-width:180px;">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;" class="controls-grid">
+              <div class="form-group">
+                <label class="form-label" for="settingIdleMode">Tampilan Idle Standby</label>
+                <select id="settingIdleMode" class="form-select">
+                  <option value="eyes" selected>Animasi Mata Lucu</option>
+                  <option value="clock">Jam Digital</option>
+                  <option value="slideshow">Slideshow Foto</option>
+                  <option value="off">Layar Nonaktif</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="settingIdleTimeout">Batas Waktu Menuju Idle</label>
+                <select id="settingIdleTimeout" class="form-select">
+                  <option value="30">30 Detik</option>
+                  <option value="60" selected>1 Menit</option>
+                  <option value="300">5 Menit</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+              <button type="button" class="btn btn-danger" id="btnResetFactory">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
+                <span>Reset ke Pengaturan Awal</span>
+              </button>
+
+              <button type="submit" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Simpan Pengaturan</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+    </main>
+
+    <!-- ========================================================== -->
+    <!-- 3. PERSISTENT AUDIO DOCK PLAYER (BOTTOM) -->
+    <!-- ========================================================== -->
+    <div class="audio-dock">
+      <!-- Left Track Info -->
+      <div class="dock-track-info">
+        <div class="dock-album-art">
+          <div class="music-icon-fallback">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+          </div>
+        </div>
+        <div class="dock-track-meta">
+          <span class="dock-track-title">Moci Friendly Chime</span>
+          <span class="dock-track-artist">ESP32 Synth Engine</span>
+        </div>
+      </div>
+
+      <!-- Center Controls & Progress -->
+      <div class="dock-center-controls">
+        <div class="dock-buttons">
+          <button class="btn-player-control btn-shuffle-toggle" title="Acak Lagu (Shuffle)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+          </button>
+          
+          <button class="btn-player-control btn-prev-track" title="Lagu Sebelumnya">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+          </button>
+
+          <button class="btn-player-control btn-play-dock btn-play-pause-toggle" title="Putar / Jeda">
+            <span class="btn-play-pause-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </span>
+          </button>
+
+          <button class="btn-player-control btn-next-track" title="Lagu Berikutnya">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+          </button>
+
+          <button class="btn-player-control btn-repeat-toggle active" title="Ulangi Lagu (Repeat)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+          </button>
+        </div>
+
+        <div class="dock-progress-wrapper">
+          <span class="dock-time player-current-time">0:00</span>
+          <input type="range" class="range-slider player-progress-slider" min="0" max="100" value="0" aria-label="Seek track">
+          <span class="dock-time player-total-time">0:32</span>
+        </div>
+      </div>
+
+      <!-- Right Actions & Volume -->
+      <div class="dock-right-actions">
+        <div class="volume-slider-group">
+          <button class="btn-player-control btn-mute-toggle" title="Bungkam (Mute)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+          </button>
+          <input type="range" class="range-slider player-volume-slider" min="0" max="100" value="80" aria-label="Volume">
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- 4. MODALS & DIALOGS -->
+    <!-- ========================================================== -->
+
+    <!-- Photo Lightbox Modal -->
+    <div class="modal-overlay lightbox-modal" id="photoLightboxModal">
+      <div class="modal-container">
+        <div class="modal-header">
+          <div>
+            <div class="modal-title" id="lightboxPhotoTitle">Foto Moci</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);"><span id="lightboxPhotoSize">128 KB</span> &bull; <span id="lightboxPhotoLocation">Micro SD</span> &bull; <span id="lightboxPhotoCounter">1 / 4</span></div>
+          </div>
+          <button class="modal-close" onclick="window.mociGallery.closeLightbox()" aria-label="Tutup">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        <div class="lightbox-content">
+          <button class="lightbox-nav-btn lightbox-prev" onclick="window.mociGallery.prevLightbox()" title="Foto Sebelumnya">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <img src="" alt="Pratinjau Foto Penuh" id="lightboxPhotoImg" class="lightbox-img">
+          <button class="lightbox-nav-btn lightbox-next" onclick="window.mociGallery.nextLightbox()" title="Foto Berikutnya">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+        <div class="modal-footer" style="justify-content: space-between;">
+          <span style="font-size:0.8rem; color:var(--text-muted);">Gunakan tombol panah ⬅️ ➡️ di keyboard untuk navigasi.</span>
+          <button class="btn btn-secondary btn-sm" onclick="window.mociGallery.closeLightbox()">Tutup</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfer to Micro SD Modal -->
+    <div class="modal-overlay" id="transferModal">
+      <div class="modal-container">
+        <div class="modal-header">
+          <div class="modal-title">Kirim Berkas ke Micro SD Moci</div>
+          <button class="modal-close" data-close-modal aria-label="Tutup">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:14px;">
+            Pilih berkas lagu (MP3, WAV) atau foto untuk disalin ke Micro SD robot. Pada mode demo, transfer disimulasikan secara visual.
+          </p>
+
+          <!-- Upload Dropzone in Modal -->
+          <div class="dropzone" id="transferDropzone" style="padding:20px; margin-bottom:16px;" onclick="document.getElementById('transferMultiFileInput').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-mint)" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <div style="font-weight:700; margin-top:6px; font-size:0.95rem;">Pilih Berkas Audio / Foto</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Klik di sini atau seret beberapa file sekaligus</div>
+          </div>
+          <input type="file" id="transferMultiFileInput" multiple accept="audio/*,image/*" style="display:none;">
+
+          <!-- Transfer Queue List -->
+          <div style="font-weight:700; font-size:0.88rem; margin-bottom:8px;">Daftar Antrean Transfer</div>
+          <div class="transfer-queue-box" id="transferQueueList" style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline btn-sm" id="btnClearTransfer" onclick="window.mociTransfer.clearFinished()">Bersihkan Riwayat</button>
+          <button class="btn btn-primary btn-sm" id="btnStartTransfer" onclick="window.mociTransfer.startQueueTransfer()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Mulai Transfer</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Action Modal -->
+    <div class="modal-overlay" id="confirmActionModal">
+      <div class="modal-container" style="max-width: 440px;">
+        <div class="modal-header">
+          <div class="modal-title" id="confirmModalTitle">Konfirmasi Tindakan</div>
+          <button class="modal-close" data-close-modal aria-label="Tutup">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="confirmModalMessage" style="font-size:0.92rem; color:var(--text-secondary); line-height:1.5;">
+            Apakah kamu yakin ingin melanjutkan tindakan ini?
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline btn-sm" data-close-modal>Batal</button>
+          <button class="btn btn-danger btn-sm" id="btnConfirmActionOk">Ya, Lanjutkan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- VIEW 8: ALARM (MANAJEMEN ALARM & PENGINGAT WAKTU) -->
+    <!-- ========================================================== -->
+    <section class="view-section" id="view-alarm">
+      <!-- Alarm Ringing Overlay (muncul saat alarm berbunyi) -->
+      <div id="alarmRingingOverlay" style="display:none; position:fixed; inset:0; z-index:9000; background:rgba(255,107,107,0.13); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; flex-direction:column;">
+        <div style="background:linear-gradient(135deg,#1e2a45,#0d1525); border:2px solid var(--accent-coral); border-radius:20px; padding:40px 48px; text-align:center; max-width:400px; width:90%;">
+          <div id="alarmRingIcon" style="font-size:3rem; margin-bottom:12px; animation:alarmPulse 0.5s ease-in-out infinite alternate;">🔔</div>
+          <div style="font-size:2.2rem; font-weight:900; color:var(--accent-coral); font-family:var(--font-mono); margin-bottom:6px;" id="alarmRingTime">06:30</div>
+          <div style="font-size:1rem; color:var(--text-primary); font-weight:700; margin-bottom:20px;" id="alarmRingLabel">Bangun Pagi!</div>
+          <div style="display:flex; gap:12px; justify-content:center;">
+            <button class="btn btn-outline btn-sm" id="btnSnoozeAlarm" style="border-color:var(--accent-cyan); color:var(--accent-cyan);">💤 Tunda 5 Menit</button>
+            <button class="btn btn-danger btn-sm" id="btnDismissAlarm">✕ Matikan Alarm</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Header + Add Alarm -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title-group">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <div>
+              <h3 style="font-size:1.15rem;">Alarm &amp; Pengingat Waktu</h3>
+              <span style="font-size:0.78rem; color:var(--text-muted);">Alarm berbunyi di website ini dan bisa disinkron ke ESP32-S3 melalui koneksi aktif</span>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="btnAddAlarm">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Tambah Alarm</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Jam Digital Real-Time -->
+      <div style="text-align:center; margin-bottom:20px;">
+        <div style="display:inline-block; background:linear-gradient(135deg,#0d1525,#162033); border:1px solid var(--border-card-hover); border-radius:16px; padding:20px 40px;">
+          <div id="alarmClock" style="font-size:3.5rem; font-weight:900; font-family:var(--font-mono); color:var(--accent-mint); letter-spacing:4px; line-height:1;">00:00:00</div>
+          <div id="alarmDate" style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; font-family:var(--font-mono);">Senin, 1 Januari 2026</div>
+        </div>
+      </div>
+
+      <!-- Form Tambah/Edit Alarm -->
+      <div class="card" id="alarmFormCard" style="margin-bottom:20px; display:none; border:1px solid var(--accent-mint);">
+        <div class="card-header">
+          <div class="card-title-group">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-mint)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <div>
+              <h3 style="font-size:1rem; color:var(--accent-mint);">Tambah / Edit Alarm</h3>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btnCancelAlarmForm">Batal</button>
+        </div>
+        <div style="padding:16px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;" class="controls-grid">
+            <div>
+              <label class="form-label" for="inputAlarmTime">Waktu Alarm</label>
+              <input type="time" class="form-input" id="inputAlarmTime" value="07:00">
+            </div>
+            <div>
+              <label class="form-label" for="inputAlarmLabel">Label / Nama Alarm</label>
+              <input type="text" class="form-input" id="inputAlarmLabel" placeholder="Mis: Bangun Pagi, Waktu Belajar">
+            </div>
+            <div>
+              <label class="form-label" for="inputAlarmSound">Suara Alarm</label>
+              <select class="form-input" id="inputAlarmSound">
+                <option value="chirp">🤖 Robot Chirp (Web Audio)</option>
+                <option value="beep8bit">🎮 8-Bit Beep</option>
+                <option value="melody">🎵 Melodi Futuristik</option>
+                <option value="siren">🚨 Sirene Darurat</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Hari Pengulangan</label>
+              <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;" id="alarmRepeatDays">
+                <button class="alarm-day-btn" data-day="Sen">Sen</button>
+                <button class="alarm-day-btn" data-day="Sel">Sel</button>
+                <button class="alarm-day-btn" data-day="Rab">Rab</button>
+                <button class="alarm-day-btn" data-day="Kam">Kam</button>
+                <button class="alarm-day-btn" data-day="Jum">Jum</button>
+                <button class="alarm-day-btn" data-day="Sab">Sab</button>
+                <button class="alarm-day-btn" data-day="Min">Min</button>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button class="btn btn-primary btn-sm" id="btnSaveAlarm">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+              <span>Simpan Alarm</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daftar Alarm -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span style="font-size:0.92rem; font-weight:700;">Daftar Alarm Tersimpan</span>
+            <span class="badge badge-demo" id="alarmListCountBadge">0 alarm</span>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btnSyncAlarmsToEsp" title="Kirim semua alarm aktif ke ESP32-S3">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            <span>Sinkron ke ESP32</span>
+          </button>
+        </div>
+        <div id="alarmListContainer" style="padding:0 4px 8px;">
+          <div class="empty-state" style="padding:24px 0;">
+            <div style="font-size:2rem; margin-bottom:8px;">⏰</div>
+            <div style="font-size:0.88rem; color:var(--text-muted);">Belum ada alarm. Klik <strong>"Tambah Alarm"</strong> untuk membuat alarm pertama!</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <!-- VIEW 9: NGOBROL DENGAN MOCI (CHAT AI + TEMPLATE) -->
+    <!-- ========================================================== -->
+    <section class="view-section" id="view-ngobrol">
+
+      <!-- Chat Layout: 2 kolom: mascot + chat -->
+      <div class="chat-layout">
+
+        <!-- Kiri: Mascot + Info -->
+        <div class="chat-mascot-col">
+          <div class="card" style="text-align:center; padding:20px 16px;">
+            <!-- Mini Mascot for Chat -->
+            <div class="moci-robot-wrapper expression-happy" id="chatMascot" style="margin:0 auto 12px; transform:scale(0.72); transform-origin:top center;">
+              <div class="moci-antenna"><div class="moci-antenna-tip"></div></div>
+              <div class="moci-head-chassis">
+                <div class="moci-ear moci-ear-left"></div>
+                <div class="moci-oled-bezel">
+                  <div class="moci-eye-left"><div class="moci-pupil"></div></div>
+                  <div class="moci-eye-right"><div class="moci-pupil"></div></div>
+                </div>
+                <div class="moci-ear moci-ear-right"></div>
+              </div>
+              <div class="moci-neck"></div>
+              <div class="moci-body-chassis">
+                <div class="moci-chest-led"></div>
+              </div>
+            </div>
+            <div style="font-size:1rem; font-weight:800; color:var(--text-primary);">Moci</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:12px;">Robot Pendamping Cerdas</div>
+
+            <!-- AI Provider Badge -->
+            <div id="chatAiModeBadge" class="badge badge-demo" style="margin-bottom:14px; font-size:0.72rem;">Mode Offline</div>
+
+            <!-- Quick Stats -->
+            <div style="background:var(--bg-input); border-radius:var(--radius-sm); padding:10px; font-size:0.78rem; text-align:left; display:flex; flex-direction:column; gap:5px;">
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Pesan:</span><span id="chatMsgCount" style="color:var(--accent-mint); font-weight:700;">1</span></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">AI:</span><span id="chatAiStatus" style="color:var(--text-secondary);">Offline</span></div>
+            </div>
+
+            <button class="btn btn-outline btn-sm" id="btnClearChat" style="width:100%; margin-top:12px; font-size:0.78rem;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
+              Bersihkan Chat
+            </button>
+          </div>
+
+          <!-- Template Obrolan Cepat -->
+          <div class="card" style="margin-top:16px;">
+            <div class="card-header" style="padding-bottom:10px;">
+              <span style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">⚡ Template Obrolan Cepat</span>
+            </div>
+            <div id="chatTemplateList" style="display:flex; flex-direction:column; gap:6px; padding:0 8px 8px;"></div>
+          </div>
+        </div>
+
+        <!-- Kanan: Chat Window -->
+        <div class="chat-main-col">
+          <div class="card" style="display:flex; flex-direction:column; height:100%;">
+
+            <!-- Chat Header -->
+            <div class="card-header" style="border-bottom:1px solid var(--border-subtle); padding-bottom:12px;">
+              <div class="card-title-group">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <div>
+                  <h3 style="font-size:1rem;">Ngobrol dengan Moci</h3>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">Template cepat atau pakai Gemini AI (isi API key di Pengaturan)</span>
+                </div>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <select class="form-input" id="chatAiProviderSelect" style="font-size:0.78rem; padding:5px 8px; height:32px; width:auto;">
+                  <option value="offline">🤖 Offline (Moci AI)</option>
+                  <option value="gemini">✨ Gemini AI</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Pesan Chat -->
+            <div id="chatMessages" style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; min-height:320px; max-height:420px;"></div>
+
+            <!-- Typing Indicator -->
+            <div id="chatTypingIndicator" style="display:none; padding:0 16px 4px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="typing-dots"><span></span><span></span><span></span></div>
+                <span style="font-size:0.78rem; color:var(--text-muted);">Moci sedang mengetik...</span>
+              </div>
+            </div>
+
+            <!-- Input Area -->
+            <div style="padding:12px 16px; border-top:1px solid var(--border-subtle); display:flex; gap:10px; align-items:flex-end;">
+              <textarea id="chatInput" class="form-input" placeholder="Ketik pesan untuk Moci..." rows="1" style="flex:1; resize:none; min-height:40px; max-height:120px; line-height:1.5; font-family:var(--font-primary);"></textarea>
+              <button class="btn btn-primary" id="btnSendChat" title="Kirim pesan" style="height:40px; min-width:40px; padding:0 14px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== -->
+    <!-- 5. TOAST NOTIFICATION CONTAINER -->
+    <!-- ========================================================== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/state.js"></script>
+  <script src="js/adapter.js"></script>
+  <script src="js/mascot.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/gallery.js"></script>
+  <script src="js/transfer.js"></script>
+  <script src="js/alarm.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

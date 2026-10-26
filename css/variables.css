@@ -1,0 +1,120 @@
+/* ===================================================================
+   VARIABLES & DESIGN TOKENS — WEB MOCI (ESP32-S3 COMPANION)
+   Theme: Dark Navy, Mint Green / Cyan Accent, Coral Alerts
+   =================================================================== */
+
+:root {
+  /* Color Palette - Dark Navy Base */
+  --bg-primary: #0a0f1d;
+  --bg-secondary: #111a2e;
+  --bg-tertiary: #17233d;
+  --bg-card: rgba(23, 35, 61, 0.7);
+  --bg-card-hover: rgba(30, 45, 77, 0.85);
+  --bg-surface: #1e2d4d;
+  --bg-overlay: rgba(10, 15, 29, 0.85);
+
+  /* Primary Accent: Mint Green / Cyber Cyan */
+  --accent-mint: #00f5d4;
+  --accent-cyan: #00bbf9;
+  --accent-glow: rgba(0, 245, 212, 0.35);
+  --accent-glow-subtle: rgba(0, 245, 212, 0.12);
+  --accent-gradient: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
+
+  /* Alert / Notification Accent: Coral & Amber */
+  --accent-coral: #ff6b6b;
+  --accent-coral-glow: rgba(255, 107, 107, 0.35);
+  --accent-amber: #f77f00;
+  --accent-amber-glow: rgba(247, 127, 0, 0.3);
+  --accent-purple: #9d4edd;
+  --accent-purple-glow: rgba(157, 78, 221, 0.3);
+
+  /* Borders & Dividers */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-card: rgba(0, 245, 212, 0.15);
+  --border-card-hover: rgba(0, 245, 212, 0.38);
+  --border-focus: #00f5d4;
+
+  /* Typography Colors */
+  --text-primary: #f0f4fc;
+  --text-secondary: #9db2d4;
+  --text-muted: #5e7399;
+  --text-inverse: #0a0f1d;
+  --text-accent: #00f5d4;
+
+  /* Status Colors */
+  --status-connected: #38ef7d;
+  --status-demo: #f77f00;
+  --status-disconnected: #ff6b6b;
+  --status-syncing: #00bbf9;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 24px var(--accent-glow);
+  --shadow-glow-coral: 0 0 24px var(--accent-coral-glow);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(17, 26, 46, 0.75);
+  --glass-blur: blur(16px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+
+  /* Radius */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 30px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+
+  /* Layout */
+  --sidebar-width: 270px;
+  --header-height: 72px;
+  --player-bar-height: 84px;
+}
+
+/* Alternate Theme: Cyber Violet */
+[data-theme="violet"] {
+  --accent-mint: #b5179e;
+  --accent-cyan: #7209b7;
+  --accent-glow: rgba(181, 23, 158, 0.4);
+  --accent-glow-subtle: rgba(181, 23, 158, 0.15);
+  --accent-gradient: linear-gradient(135deg, #f72585 0%, #7209b7 100%);
+  --border-card: rgba(181, 23, 158, 0.2);
+  --border-card-hover: rgba(247, 37, 133, 0.45);
+  --text-accent: #f72585;
+}
+
+/* Alternate Theme: Cyber Gold */
+[data-theme="gold"] {
+  --accent-mint: #ffd166;
+  --accent-cyan: #f77f00;
+  --accent-glow: rgba(255, 209, 102, 0.4);
+  --accent-glow-subtle: rgba(255, 209, 102, 0.15);
+  --accent-gradient: linear-gradient(135deg, #ffd166 0%, #f77f00 100%);
+  --border-card: rgba(255, 209, 102, 0.2);
+  --border-card-hover: rgba(255, 209, 102, 0.45);
+  --text-accent: #ffd166;
+}
+
+/* Alternate Theme: Emerald Robot */
+[data-theme="emerald"] {
+  --accent-mint: #2ec4b6;
+  --accent-cyan: #20bf6b;
+  --accent-glow: rgba(46, 196, 182, 0.4);
+  --accent-glow-subtle: rgba(46, 196, 182, 0.15);
+  --accent-gradient: linear-gradient(135deg, #2ec4b6 0%, #0ebac5 100%);
+  --border-card: rgba(46, 196, 182, 0.2);
+  --border-card-hover: rgba(46, 196, 182, 0.45);
+  --text-accent: #2ec4b6;
+}
