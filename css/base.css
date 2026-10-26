@@ -103,7 +103,7 @@ button, input, select, textarea {
   top: 0;
   bottom: 0;
   left: 0;
-  z-index: 100;
+  z-index: 200;
   transition: transform var(--transition-normal);
   backdrop-filter: var(--glass-blur);
 }
@@ -286,12 +286,15 @@ button, input, select, textarea {
   top: 0;
   z-index: 100;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 16px;
+  min-width: 0;
 }
 
 .mobile-menu-toggle {
@@ -302,28 +305,38 @@ button, input, select, textarea {
   padding: 8px;
   border-radius: var(--radius-sm);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .page-title-badge {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .current-page-title {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .current-page-desc {
   font-size: 0.8rem;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 600px;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 /* Pages / Views */
