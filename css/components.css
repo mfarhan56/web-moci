@@ -1867,7 +1867,8 @@ input:checked + .slider-round:before {
 
 .chat-mascot-col {
   position: sticky;
-  top: 80px;
+  top: calc(var(--header-height) + 16px);
+  z-index: 10;
 }
 
 .chat-main-col {

@@ -1428,20 +1428,23 @@
         <!-- Kiri: Mascot + Info -->
         <div class="chat-mascot-col">
           <div class="card" style="text-align:center; padding:20px 16px;">
-            <!-- Mini Mascot for Chat -->
-            <div class="moci-robot-wrapper expression-happy" id="chatMascot" style="margin:0 auto 12px; transform:scale(0.72); transform-origin:top center;">
+            <!-- Mini Mascot for Chat with Glowing Expressive Eyes -->
+            <div class="moci-robot-wrapper expression-happy" id="chatMascot" style="margin:0 auto 12px; transform:scale(0.85); transform-origin:top center;">
               <div class="moci-antenna"><div class="moci-antenna-tip"></div></div>
               <div class="moci-head-chassis">
                 <div class="moci-ear moci-ear-left"></div>
-                <div class="moci-oled-bezel">
-                  <div class="moci-eye-left"><div class="moci-pupil"></div></div>
-                  <div class="moci-eye-right"><div class="moci-pupil"></div></div>
+                <div class="moci-screen-bezel">
+                  <div class="moci-eyes-container">
+                    <div class="moci-eye"></div>
+                    <div class="moci-eye"></div>
+                  </div>
+                  <div class="moci-voice-meter">
+                    <div class="voice-dot"></div>
+                    <div class="voice-dot"></div>
+                    <div class="voice-dot"></div>
+                  </div>
                 </div>
                 <div class="moci-ear moci-ear-right"></div>
-              </div>
-              <div class="moci-neck"></div>
-              <div class="moci-body-chassis">
-                <div class="moci-chest-led"></div>
               </div>
             </div>
             <div style="font-size:1rem; font-weight:800; color:var(--text-primary);">Moci</div>
@@ -1543,7 +1546,7 @@
             </div>
 
             <!-- Pesan Chat -->
-            <div id="chatMessages" style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; min-height:320px; max-height:420px;"></div>
+            <div id="chatMessages" style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; min-height:380px; max-height:520px;"></div>
 
             <!-- Typing Indicator -->
             <div id="chatTypingIndicator" style="display:none; padding:0 16px 4px;">

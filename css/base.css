@@ -280,11 +280,12 @@ button, input, select, textarea {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(10, 15, 29, 0.7);
+  background: rgba(10, 15, 29, 0.94);
   backdrop-filter: var(--glass-blur);
   position: sticky;
   top: 0;
-  z-index: 90;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 }
 
 .header-left {
