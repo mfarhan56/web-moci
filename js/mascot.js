@@ -18,7 +18,11 @@ class MociMascotController {
       neutral: ["Sistem ESP32-S3 normal.", "Menunggu perintah dari kamu.", "Sensor INMP441 & SD Card standby."],
       surprised: ["Wah! Ada foto baru ya?", "Perintah diterima dengan cepat!", "Kapasitas Micro SD sangat lega!"],
       excited: ["Horeee! Ayo putar lagu favorit!", "Moci bersemangat sekali!", "Visualizer musik sedang aktif!"],
-      singing: ["🎶 La la la~ lagunya enak banget! 🎵", "Tra-la-la! Moci suka lagu ini! 🎤", "Bip bop~ yuk nyanyi bareng Moci! 🎶"]
+      singing: ["🎶 La la la~ lagunya enak banget! 🎵", "Tra-la-la! Moci suka lagu ini! 🎤", "Bip bop~ yuk nyanyi bareng Moci! 🎶"],
+      angry: ["Grrr! Siapa yang bikin Moci kesal? 😤", "Sensor Moci mendeteksi gangguan!", "Jangan ganggu dulu ya! 💢"],
+      love: ["Moci sayang kamu! ❤️", "Terima kasih sudah merawat Moci! 💕", "Baterai penuh, hati pun senang! 🥰"],
+      wink: ["Tenang saja, serahkan semuanya padaku! 😉", "Bip! Moci robot yang handal kan? ✨", "Kedipan maut dari Moci! 😎"],
+      talking: ["Halo! Moci sedang berbicara nih...", "Mendengarkan dan merespons...", "Bip bop, ada yang bisa Moci bantu?"]
     };
   }
 
@@ -110,7 +114,7 @@ class MociMascotController {
 
   // --- Expression Logic ---
   setExpression(exprName, playSound = true) {
-    const validExpressions = ['happy', 'sleepy', 'sad', 'neutral', 'surprised', 'excited', 'singing'];
+    const validExpressions = ['happy', 'excited', 'surprised', 'sleepy', 'sad', 'neutral', 'singing', 'angry', 'love', 'wink', 'talking'];
     if (!validExpressions.includes(exprName)) exprName = 'happy';
 
     this.currentExpression = exprName;

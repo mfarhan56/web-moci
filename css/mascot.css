@@ -258,6 +258,57 @@
   100% { transform: translateY(-8px) rotate(1.5deg); }
 }
 
+/* 9. Angry / Marah */
+.expression-angry .moci-eye {
+  height: 26px;
+  background: #ff4d6d;
+  box-shadow: 0 0 20px #ff4d6d;
+  clip-path: polygon(0% 0%, 100% 35%, 100% 100%, 0% 100%);
+}
+.expression-angry .moci-eye:nth-child(2) {
+  clip-path: polygon(0% 35%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+/* 10. Love / Hati */
+.expression-love .moci-eye {
+  height: 32px;
+  background: #ff758f;
+  box-shadow: 0 0 22px #ff758f;
+  border-radius: 50% 50% 0 0;
+  clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 50% 75%, 18% 100%, 0% 35%);
+  animation: heartPulse 0.7s infinite alternate ease-in-out;
+}
+@keyframes heartPulse {
+  0% { transform: scale(0.92); }
+  100% { transform: scale(1.12); }
+}
+
+/* 11. Wink / Kedip Satu Mata */
+.expression-wink .moci-eye:first-child {
+  height: 5px;
+  margin-top: 18px;
+  background: var(--accent-mint);
+  border-radius: 4px;
+}
+.expression-wink .moci-eye:last-child {
+  height: 24px;
+  border-radius: 20px 20px 0 0;
+  clip-path: ellipse(100% 70% at 50% 100%);
+  background: var(--accent-mint);
+}
+
+/* 12. Talking / Sedang Bicara */
+.expression-talking .moci-eye {
+  height: 26px;
+  border-radius: 12px;
+  background: var(--accent-mint);
+  animation: talkingBlink 0.35s infinite alternate ease-in-out;
+}
+@keyframes talkingBlink {
+  0% { transform: scaleY(0.7); }
+  100% { transform: scaleY(1.1); }
+}
+
 /* Voice / Audio reaction wave inside screen */
 .moci-voice-meter {
   position: absolute;
