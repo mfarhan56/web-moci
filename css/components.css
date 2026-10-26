@@ -2008,4 +2008,173 @@ input:checked + .slider-round:before {
   box-shadow: 0 0 8px var(--accent-glow);
 }
 
+/* Quick Template Bar (Pills Carousel) */
+.chat-template-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(13, 21, 37, 0.75);
+  border-top: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+.chat-template-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.chat-template-action-btn.btn-primary {
+  background: var(--accent-gradient);
+  color: var(--text-inverse);
+  box-shadow: 0 2px 8px var(--accent-glow-subtle);
+}
+
+.chat-template-action-btn.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+
+.chat-template-action-btn.btn-secondary {
+  background: var(--bg-surface);
+  border-color: var(--border-card);
+  color: var(--text-secondary);
+}
+
+.chat-template-action-btn.btn-secondary:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--accent-mint);
+}
+
+.chat-template-pills-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-surface) transparent;
+  padding: 2px 0;
+  flex: 1;
+}
+
+.chat-template-pills-wrap::-webkit-scrollbar {
+  height: 4px;
+}
+
+.chat-template-pills-wrap::-webkit-scrollbar-thumb {
+  background: var(--bg-surface);
+  border-radius: 4px;
+}
+
+.chat-template-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.chat-template-pill:hover {
+  background: rgba(0, 245, 212, 0.12);
+  border-color: var(--accent-mint);
+  color: var(--accent-mint);
+  transform: translateY(-1px);
+}
+
+.chat-template-pill.custom-pill {
+  border-color: rgba(0, 187, 249, 0.4);
+  color: var(--accent-cyan);
+}
+
+.chat-template-pill.custom-pill:hover {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 187, 249, 0.15);
+}
+
+.chat-pill-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: rgba(255, 77, 109, 0.15);
+  color: var(--accent-coral);
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  margin-left: 2px;
+  transition: all 0.15s ease;
+}
+
+.chat-pill-delete-btn:hover {
+  background: var(--accent-coral);
+  color: #fff;
+  transform: scale(1.15);
+}
+
+/* Manage templates modal list item */
+.manage-tpl-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.manage-tpl-item:hover {
+  border-color: var(--border-card-hover);
+  background: var(--bg-surface);
+}
+
+.manage-tpl-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.manage-tpl-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.manage-tpl-text {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 

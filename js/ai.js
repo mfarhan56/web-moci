@@ -391,26 +391,31 @@ class MociAiEngine {
     this.speechSynth.speak(utterance);
   }
 
-  // ---- Templates ----
+  // ---- Templates Rendering (Pills Bar) ----
   _renderTemplates() {
     const container = document.getElementById('chatTemplateList');
     if (!container) return;
 
-    const templates = window.mociState.templates;
+    const templates = window.mociState.templates || [];
+    if (!templates.length) {
+      container.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted); padding:4px 8px;">Belum ada template. Klik <strong>+ Buat</strong> untuk membuat!</span>`;
+      return;
+    }
+
     container.innerHTML = templates.map(tpl => `
-      <div style="display:flex; gap:4px; align-items:center;">
-        <button class="chat-template-btn" data-tpl-id="${tpl.id}" title="${this._escapeHtml(tpl.text)}" style="flex:1; text-align:left;">
-          ${this._escapeHtml(tpl.label)} ${tpl.audioData ? '🎙️' : ''}
-        </button>
-        ${tpl.isCustom ? `
-          <button class="btn btn-outline btn-sm btn-delete-tpl" data-tpl-id="${tpl.id}" style="padding:2px 8px; font-size:0.75rem; color:#ff4d6d; border-color:rgba(255,77,109,0.3);" title="Hapus Template">✕</button>
-        ` : ''}
+      <div class="chat-template-pill ${tpl.isCustom ? 'custom-pill' : ''}" data-tpl-id="${tpl.id}" title="${this._escapeHtml(tpl.text)}">
+        <span class="tpl-pill-text">${this._escapeHtml(tpl.label)} ${tpl.audioData ? '🎙️' : ''}</span>
+        <button class="chat-pill-delete-btn" data-delete-id="${tpl.id}" title="Hapus template '${this._escapeHtml(tpl.label)}'">✕</button>
       </div>
     `).join('');
 
-    container.querySelectorAll('.chat-template-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tpl = window.mociState.templates.find(t => t.id === btn.dataset.tplId);
+    // Bind click to ask
+    container.querySelectorAll('.chat-template-pill').forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        // Ignore if clicked on delete button
+        if (e.target.closest('.chat-pill-delete-btn')) return;
+        const tplId = pill.dataset.tplId;
+        const tpl = window.mociState.templates.find(t => t.id === tplId);
         if (tpl) {
           if (tpl.audioData) {
             this.playCustomAudio(tpl.audioData);
@@ -420,13 +425,80 @@ class MociAiEngine {
       });
     });
 
-    container.querySelectorAll('.btn-delete-tpl').forEach(btn => {
+    // Bind quick pill delete
+    container.querySelectorAll('.chat-pill-delete-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const id = btn.dataset.tplId;
-        if (confirm('Hapus template kustom ini?')) {
+        const id = btn.dataset.deleteId;
+        const tpl = window.mociState.templates.find(t => t.id === id);
+        const name = tpl ? tpl.label : 'template';
+        if (confirm(`Hapus template "${name}"?`)) {
           window.mociState.removeTemplate(id);
-          if (window.mociUI) window.mociUI.showToast('Template berhasil dihapus', 'info');
+          if (window.mociUI) window.mociUI.showToast(`Template "${name}" berhasil dihapus`, 'info');
+        }
+      });
+    });
+  }
+
+  // ---- Manage & Delete Templates Modal ----
+  _renderManageModal() {
+    const list = document.getElementById('manageTemplatesList');
+    if (!list) return;
+
+    const templates = window.mociState.templates || [];
+    if (!templates.length) {
+      list.innerHTML = `
+        <div class="empty-state" style="padding:20px 0;">
+          <div style="font-size:1.8rem; margin-bottom:6px;">💬</div>
+          <div style="font-size:0.85rem; color:var(--text-muted);">Belum ada template. Klik <strong>"+ Buat Baru"</strong> untuk menambahkan atau <strong>"Reset ke Bawaan"</strong>.</div>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = templates.map(tpl => `
+      <div class="manage-tpl-item">
+        <div class="manage-tpl-info">
+          <div class="manage-tpl-label">
+            <span>${this._escapeHtml(tpl.label)}</span>
+            ${tpl.audioData ? `<span class="badge badge-demo" style="font-size:0.68rem; padding:1px 6px;">🎙️ Audio</span>` : `<span class="badge" style="font-size:0.68rem; padding:1px 6px; background:rgba(0,245,212,0.12); color:var(--accent-mint);">💬 Teks</span>`}
+            ${tpl.isCustom ? `<span class="badge" style="font-size:0.68rem; padding:1px 6px; background:rgba(0,187,249,0.15); color:var(--accent-cyan);">Kustom</span>` : ''}
+          </div>
+          <div class="manage-tpl-text" title="${this._escapeHtml(tpl.text)}">Pesan: "${this._escapeHtml(tpl.text)}"</div>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center;">
+          ${tpl.audioData ? `
+            <button class="btn btn-outline btn-sm btn-preview-audio" data-tpl-id="${tpl.id}" style="padding:3px 8px; font-size:0.75rem;" title="Uji putar suara">
+              ▶️ Dengar
+            </button>
+          ` : ''}
+          <button class="btn btn-danger btn-sm btn-delete-manage-tpl" data-tpl-id="${tpl.id}" style="padding:3px 8px; font-size:0.75rem;" title="Hapus template ini">
+            🗑️ Hapus
+          </button>
+        </div>
+      </div>
+    `).join('');
+
+    // Bind preview audio
+    list.querySelectorAll('.btn-preview-audio').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tpl = window.mociState.templates.find(t => t.id === btn.dataset.tplId);
+        if (tpl && tpl.audioData) {
+          this.playCustomAudio(tpl.audioData);
+          if (window.mociUI) window.mociUI.showToast(`Memutar audio "${tpl.label}"...`, 'info');
+        }
+      });
+    });
+
+    // Bind delete inside manage modal
+    list.querySelectorAll('.btn-delete-manage-tpl').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.tplId;
+        const tpl = window.mociState.templates.find(t => t.id === id);
+        const name = tpl ? tpl.label : 'template';
+        if (confirm(`Apakah kamu yakin ingin menghapus template "${name}"?`)) {
+          window.mociState.removeTemplate(id);
+          this._renderManageModal();
+          if (window.mociUI) window.mociUI.showToast(`Template "${name}" dihapus.`, 'info');
         }
       });
     });
@@ -441,24 +513,28 @@ class MociAiEngine {
 
   // ---- Event Binding ----
   _bindEvents() {
-    // Modal Custom Template
-    const modal = document.getElementById('modalAddTemplate');
-    const btnOpenModal = document.getElementById('btnOpenAddTemplateModal');
-    const btnCloseModal = document.getElementById('btnCloseAddTemplateModal');
-    const btnCancelModal = document.getElementById('btnCancelTemplate');
+    // 1. Modal Buat Template
+    const modalAdd = document.getElementById('modalAddTemplate');
+    const btnOpenAddModal = document.getElementById('btnOpenAddTemplateModal');
+    const btnCloseAddModal = document.getElementById('btnCloseAddTemplateModal');
+    const btnCancelAddModal = document.getElementById('btnCancelTemplate');
     const selectReplyType = document.getElementById('tplReplyType');
     const textGroup = document.getElementById('tplTextReplyGroup');
     const audioGroup = document.getElementById('tplAudioReplyGroup');
     const btnSaveTemplate = document.getElementById('btnSaveCustomTemplate');
 
-    if (btnOpenModal && modal) {
-      btnOpenModal.addEventListener('click', () => {
-        modal.style.display = 'flex';
-      });
-    }
+    const openAddModal = () => {
+      if (modalAdd) {
+        modalAdd.classList.add('active');
+        modalAdd.style.display = 'flex';
+      }
+    };
 
-    const closeModal = () => {
-      if (modal) modal.style.display = 'none';
+    const closeAddModal = () => {
+      if (modalAdd) {
+        modalAdd.classList.remove('active');
+        modalAdd.style.display = 'none';
+      }
       const fLabel = document.getElementById('tplLabel');
       const fQuestion = document.getElementById('tplQuestion');
       const fAnswer = document.getElementById('tplAnswerText');
@@ -469,13 +545,59 @@ class MociAiEngine {
       if (fAudio) fAudio.value = '';
     };
 
-    if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
-    if (btnCancelModal) btnCancelModal.addEventListener('click', closeModal);
+    if (btnOpenAddModal) btnOpenAddModal.addEventListener('click', openAddModal);
+    if (btnCloseAddModal) btnCloseAddModal.addEventListener('click', closeAddModal);
+    if (btnCancelAddModal) btnCancelAddModal.addEventListener('click', closeAddModal);
 
+    // 2. Modal Kelola & Hapus Template
+    const modalManage = document.getElementById('modalManageTemplates');
+    const btnOpenManageModal = document.getElementById('btnOpenManageTemplatesModal');
+    const btnCloseManageModal = document.getElementById('btnCloseManageTemplateModal');
+    const btnDoneManageModal = document.getElementById('btnDoneManageModal');
+    const btnManageOpenAdd = document.getElementById('btnManageOpenAddModal');
+    const btnResetTemplates = document.getElementById('btnResetDefaultTemplates');
+
+    const openManageModal = () => {
+      this._renderManageModal();
+      if (modalManage) {
+        modalManage.classList.add('active');
+        modalManage.style.display = 'flex';
+      }
+    };
+
+    const closeManageModal = () => {
+      if (modalManage) {
+        modalManage.classList.remove('active');
+        modalManage.style.display = 'none';
+      }
+    };
+
+    if (btnOpenManageModal) btnOpenManageModal.addEventListener('click', openManageModal);
+    if (btnCloseManageModal) btnCloseManageModal.addEventListener('click', closeManageModal);
+    if (btnDoneManageModal) btnDoneManageModal.addEventListener('click', closeManageModal);
+
+    if (btnManageOpenAdd) {
+      btnManageOpenAdd.addEventListener('click', () => {
+        closeManageModal();
+        openAddModal();
+      });
+    }
+
+    if (btnResetTemplates) {
+      btnResetTemplates.addEventListener('click', () => {
+        if (confirm('Kembalikan semua template obrolan ke 8 template bawaan awal?')) {
+          window.mociState.resetTemplatesToDefault();
+          this._renderManageModal();
+          if (window.mociUI) window.mociUI.showToast('Semua template berhasil di-reset ke bawaan!', 'success');
+        }
+      });
+    }
+
+    // 3. Type Switcher in Add Modal
     if (selectReplyType) {
       selectReplyType.addEventListener('change', (e) => {
         if (e.target.value === 'audio') {
-          if (textGroup) textGroup.style.display = 'block'; // tetap sediakan teks transkrip
+          if (textGroup) textGroup.style.display = 'block';
           if (audioGroup) audioGroup.style.display = 'block';
         } else {
           if (textGroup) textGroup.style.display = 'block';
@@ -484,6 +606,7 @@ class MociAiEngine {
       });
     }
 
+    // 4. Save Custom Template
     if (btnSaveTemplate) {
       btnSaveTemplate.addEventListener('click', async () => {
         const label = document.getElementById('tplLabel')?.value?.trim();
@@ -519,10 +642,8 @@ class MociAiEngine {
 
         window.mociState.addTemplate(newTemplate);
 
-        // Jika terhubung ke ESP32 fisik, kirim juga file audio dan sinkronkan ke Micro SD
         if (window.mociApi) {
           try {
-            // Sinkronkan daftar template ke Micro SD
             window.mociApi.syncTemplates(window.mociState.templates).then(res => {
               if (res?.message && window.mociUI) {
                 window.mociUI.showToast(res.message, 'success');
@@ -531,20 +652,43 @@ class MociAiEngine {
           } catch (e) {}
         }
 
-        closeModal();
+        closeAddModal();
         if (window.mociUI) {
-          window.mociUI.showToast(`Template "${label}" berhasil disimpan ke sistem & Micro SD!`, 'success');
+          window.mociUI.showToast(`Template "${label}" berhasil disimpan!`, 'success');
         }
       });
     }
 
-    // Send button
+    // 5. Quick Alarm shortcut from chat panel
+    const btnQuickAlarm = document.getElementById('btnQuickAddAlarmFromChat');
+    if (btnQuickAlarm) {
+      btnQuickAlarm.addEventListener('click', () => {
+        if (window.mociUI) {
+          window.mociUI.navigateTo('alarm');
+          setTimeout(() => {
+            if (window.mociAlarm) window.mociAlarm._openAddForm();
+          }, 250);
+        }
+      });
+    }
+
+    // 6. Face Expressions Switcher in chat column
+    document.querySelectorAll('.chat-face-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const expr = btn.dataset.expr;
+        if (window.mociMascot) {
+          window.mociMascot.setExpression(expr, false);
+          if (window.mociUI) window.mociUI.showToast(`Ekspresi Moci diubah ke: ${expr} 😊`, 'info');
+        }
+      });
+    });
+
+    // 7. Send button & Enter key
     document.getElementById('btnSendChat')?.addEventListener('click', () => {
       const val = document.getElementById('chatInput')?.value || '';
       this.sendMessage(val);
     });
 
-    // Enter key (without Shift)
     document.getElementById('chatInput')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -574,8 +718,10 @@ class MociAiEngine {
       }
     });
 
-    // Re-render templates when they change
+    // Listen for template changes
     window.mociState.on('templates_changed', () => this._renderTemplates());
+    window.mociState.on('templates_reset', () => this._renderTemplates());
+    window.mociState.on('template_removed', () => this._renderTemplates());
 
     // Set provider from saved settings
     const savedProvider = window.mociState.settings.aiProvider || 'offline';

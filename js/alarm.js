@@ -325,6 +325,7 @@ class AlarmManager {
 
   // ---- Form ----
   _openAddForm() {
+    this._ensureAudioCtx();
     this.editingAlarmId = null;
     this.selectedRepeatDays = new Set(['Sen', 'Sel', 'Rab', 'Kam', 'Jum']);
     const ti = document.getElementById('inputAlarmTime');
@@ -334,13 +335,15 @@ class AlarmManager {
     if (li) li.value = '';
     if (si) si.value = 'chirp';
     this._updateDayButtons();
-    if (this.alarmFormCard) {
-      this.alarmFormCard.style.display = 'block';
-      this.alarmFormCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const card = this.alarmFormCard || document.getElementById('alarmFormCard');
+    if (card) {
+      card.style.display = 'block';
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 
   _openEditForm(alarmId) {
+    this._ensureAudioCtx();
     const alarm = window.mociState.alarms.find(a => a.id === alarmId);
     if (!alarm) return;
 
@@ -353,16 +356,18 @@ class AlarmManager {
     if (li) li.value = alarm.label;
     if (si) si.value = alarm.sound || 'chirp';
     this._updateDayButtons();
-    if (this.alarmFormCard) {
-      this.alarmFormCard.style.display = 'block';
-      this.alarmFormCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const card = this.alarmFormCard || document.getElementById('alarmFormCard');
+    if (card) {
+      card.style.display = 'block';
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 
   _closeForm() {
     this.editingAlarmId = null;
     this.selectedRepeatDays = new Set();
-    if (this.alarmFormCard) this.alarmFormCard.style.display = 'none';
+    const card = this.alarmFormCard || document.getElementById('alarmFormCard');
+    if (card) card.style.display = 'none';
   }
 
   _saveAlarm() {

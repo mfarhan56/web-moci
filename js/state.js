@@ -406,6 +406,12 @@ class StateManager {
     this.emit('template_removed', id);
   }
 
+  resetTemplatesToDefault() {
+    this.templates = this.getDefaultTemplates();
+    this.saveTemplates();
+    this.emit('templates_reset', this.templates);
+  }
+
   getDefaultTemplates() {
     return [
       { id: 'tpl_1', label: '👋 Sapa Moci', text: 'Halo Moci, apa kabar kamu hari ini?' },
