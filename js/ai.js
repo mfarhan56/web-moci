@@ -513,13 +513,27 @@ class MociAiEngine {
           text: question,
           answer: answer || (replyType === 'audio' ? '🎙️ [Memutar Rekaman Suara Khusus]' : 'Siap! Moci mengerti!'),
           audioData: audioData,
+          audioFileName: (replyType === 'audio' && audioFileInput?.files?.length > 0) ? audioFileInput.files[0].name : null,
           isCustom: true
         };
 
         window.mociState.addTemplate(newTemplate);
+
+        // Jika terhubung ke ESP32 fisik, kirim juga file audio dan sinkronkan ke Micro SD
+        if (window.mociApi) {
+          try {
+            // Sinkronkan daftar template ke Micro SD
+            window.mociApi.syncTemplates(window.mociState.templates).then(res => {
+              if (res?.message && window.mociUI) {
+                window.mociUI.showToast(res.message, 'success');
+              }
+            }).catch(() => {});
+          } catch (e) {}
+        }
+
         closeModal();
         if (window.mociUI) {
-          window.mociUI.showToast(`Template "${label}" berhasil disimpan!`, 'success');
+          window.mociUI.showToast(`Template "${label}" berhasil disimpan ke sistem & Micro SD!`, 'success');
         }
       });
     }

@@ -665,6 +665,67 @@ void apiPostAlarmSync() {
   server.send(200, "application/json", "{\"ok\":true,\"count\":" + String(alarmList.size()) + "}");
 }
 
+// POST /api/audio/upload (Menyimpan file rekaman suara ke Micro SD)
+File uploadAudioFile;
+void handleAudioFileUpload() {
+  setCorsHeaders();
+  HTTPUpload& upload = server.upload();
+  if (upload.status == UPLOAD_FILE_START) {
+    String filename = upload.filename;
+    if (!filename.startsWith("/")) filename = "/" + filename;
+    Serial.printf("[Upload SD] Memulai simpan file audio: %s\n", filename.c_str());
+    if (sdMounted) {
+      if (SD.exists(filename)) SD.remove(filename);
+      uploadAudioFile = SD.open(filename, FILE_WRITE);
+    }
+  } else if (upload.status == UPLOAD_FILE_WRITE) {
+    if (uploadAudioFile) {
+      uploadAudioFile.write(upload.buf, upload.currentSize);
+    }
+  } else if (upload.status == UPLOAD_FILE_END) {
+    if (uploadAudioFile) {
+      uploadAudioFile.close();
+      Serial.printf("[Upload SD] Selesai simpan: %s (%u bytes)\n", upload.filename.c_str(), upload.totalSize);
+      scanSDAudioFiles();
+    }
+  }
+}
+
+// POST /api/templates/sync (Menyimpan daftar template Q&A ke /system/templates.json di SD)
+void apiPostTemplatesSync() {
+  setCorsHeaders();
+  if (!server.hasArg("plain")) {
+    server.send(400, "application/json", "{\"ok\":false}");
+    return;
+  }
+  if (sdMounted) {
+    if (!SD.exists("/system")) SD.mkdir("/system");
+    File f = SD.open("/system/templates.json", FILE_WRITE);
+    if (f) {
+      f.print(server.arg("plain"));
+      f.close();
+      Serial.println("[Templates] Database template berhasil disimpan ke /system/templates.json di SD Card!");
+      server.send(200, "application/json", "{\"ok\":true,\"message\":\"Templates tersimpan di Micro SD!\"}");
+      return;
+    }
+  }
+  server.send(500, "application/json", "{\"ok\":false,\"message\":\"Gagal menulis ke SD Card.\"}");
+}
+
+// GET /api/templates (Membaca daftar template dari /system/templates.json di SD)
+void apiGetTemplates() {
+  setCorsHeaders();
+  if (sdMounted && SD.exists("/system/templates.json")) {
+    File f = SD.open("/system/templates.json", FILE_READ);
+    if (f) {
+      server.streamFile(f, "application/json");
+      f.close();
+      return;
+    }
+  }
+  server.send(200, "application/json", "[]");
+}
+
 // ============================================================
 // WEBSOCKET HANDLER
 // ============================================================
@@ -740,6 +801,9 @@ void setup() {
   server.on("/api/wifi/scan",       HTTP_GET,     apiGetWifiScan);
   server.on("/api/wifi/connect",    HTTP_POST,    apiPostWifiConnect);
   server.on("/api/alarms/sync",     HTTP_POST,    apiPostAlarmSync);
+  server.on("/api/templates",       HTTP_GET,     apiGetTemplates);
+  server.on("/api/templates/sync",  HTTP_POST,    apiPostTemplatesSync);
+  server.on("/api/audio/upload",    HTTP_POST,    [](){ setCorsHeaders(); server.send(200, "application/json", "{\"ok\":true}"); }, handleAudioFileUpload);
 
   // CORS Preflight
   server.on("/api/status",          HTTP_OPTIONS, handleCorsPreflight);
@@ -749,6 +813,9 @@ void setup() {
   server.on("/api/wifi/scan",       HTTP_OPTIONS, handleCorsPreflight);
   server.on("/api/wifi/connect",    HTTP_OPTIONS, handleCorsPreflight);
   server.on("/api/alarms/sync",     HTTP_OPTIONS, handleCorsPreflight);
+  server.on("/api/templates",       HTTP_OPTIONS, handleCorsPreflight);
+  server.on("/api/templates/sync",  HTTP_OPTIONS, handleCorsPreflight);
+  server.on("/api/audio/upload",    HTTP_OPTIONS, handleCorsPreflight);
 
   server.begin();
 

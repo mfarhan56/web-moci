@@ -171,6 +171,16 @@ class DemoAdapter extends DeviceAdapter {
       message: `Moci berucap lewat simulasi speaker: "${text}"`
     };
   }
+
+  async syncTemplates(templates) {
+    await new Promise(r => setTimeout(r, 350));
+    return {
+      success: true,
+      type: 'demo',
+      count: templates.length,
+      message: `${templates.length} template Q&A tersimpan ke Micro SD /system/templates.json (Simulasi)!`
+    };
+  }
 }
 
 /**
@@ -338,6 +348,14 @@ class Esp32RestAdapter extends DeviceAdapter {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text })
+    });
+  }
+
+  async syncTemplates(templates) {
+    return await this._fetch('/api/templates/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(templates)
     });
   }
 }
@@ -930,6 +948,10 @@ class MociApiGateway {
   async speakText(text) {
     if (this.activeAdapter.speakText) return await this.activeAdapter.speakText(text);
     return await this.demoAdapter.speakText(text);
+  }
+  async syncTemplates(templates) {
+    if (this.activeAdapter.syncTemplates) return await this.activeAdapter.syncTemplates(templates);
+    return await this.demoAdapter.syncTemplates(templates);
   }
 }
 
