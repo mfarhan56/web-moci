@@ -301,14 +301,45 @@ class MociAiEngine {
     this.isThinking = false;
   }
 
-  // ---- Offline AI Reply (keyword matching) ----
+  // ---- Offline AI Reply (keyword matching + custom template matching) ----
   async _offlineReply(text) {
-    const lower = text.toLowerCase();
+    const lower = text.toLowerCase().trim();
+
+    // 1. Cek apakah cocok dengan Template Custom buatan pengguna
+    const customMatch = window.mociState.templates.find(t => {
+      const q = (t.text || '').toLowerCase().trim();
+      const lbl = (t.label || '').toLowerCase().trim();
+      return (q && (q === lower || lower.includes(q))) || (t.answer && (lbl === lower || lower.includes(lbl)));
+    });
+
+    if (customMatch && customMatch.answer) {
+      // Jika template ini memiliki rekaman audio kustom
+      if (customMatch.audioData) {
+        this.playCustomAudio(customMatch.audioData);
+      }
+      return customMatch.answer;
+    }
+
+    // 2. Cek keyword default bawaan
     const matched = this.responses.find(r => r.patterns.some(p => lower.includes(p)));
     if (matched) {
       return matched.replies[Math.floor(Math.random() * matched.replies.length)];
     }
     return this.fallbacks[Math.floor(Math.random() * this.fallbacks.length)];
+  }
+
+  // Putar rekaman suara custom
+  playCustomAudio(audioSrc) {
+    try {
+      const audio = new Audio(audioSrc);
+      audio.play().catch(e => console.warn('Audio custom playback interrupted', e));
+      if (window.mociMascot) {
+        window.mociMascot.setExpression('singing', false);
+        audio.onended = () => window.mociMascot.setExpression('happy', false);
+      }
+    } catch (e) {
+      console.warn('Gagal memutar audio custom:', e);
+    }
   }
 
   // ---- Gemini AI Reply ----
@@ -367,15 +398,36 @@ class MociAiEngine {
 
     const templates = window.mociState.templates;
     container.innerHTML = templates.map(tpl => `
-      <button class="chat-template-btn" data-tpl-id="${tpl.id}" title="${this._escapeHtml(tpl.text)}">
-        ${this._escapeHtml(tpl.label)}
-      </button>
+      <div style="display:flex; gap:4px; align-items:center;">
+        <button class="chat-template-btn" data-tpl-id="${tpl.id}" title="${this._escapeHtml(tpl.text)}" style="flex:1; text-align:left;">
+          ${this._escapeHtml(tpl.label)} ${tpl.audioData ? '🎙️' : ''}
+        </button>
+        ${tpl.isCustom ? `
+          <button class="btn btn-outline btn-sm btn-delete-tpl" data-tpl-id="${tpl.id}" style="padding:2px 8px; font-size:0.75rem; color:#ff4d6d; border-color:rgba(255,77,109,0.3);" title="Hapus Template">✕</button>
+        ` : ''}
+      </div>
     `).join('');
 
     container.querySelectorAll('.chat-template-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const tpl = window.mociState.templates.find(t => t.id === btn.dataset.tplId);
-        if (tpl) this.sendMessage(tpl.text);
+        if (tpl) {
+          if (tpl.audioData) {
+            this.playCustomAudio(tpl.audioData);
+          }
+          this.sendMessage(tpl.text);
+        }
+      });
+    });
+
+    container.querySelectorAll('.btn-delete-tpl').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.tplId;
+        if (confirm('Hapus template kustom ini?')) {
+          window.mociState.removeTemplate(id);
+          if (window.mociUI) window.mociUI.showToast('Template berhasil dihapus', 'info');
+        }
       });
     });
   }
@@ -389,6 +441,89 @@ class MociAiEngine {
 
   // ---- Event Binding ----
   _bindEvents() {
+    // Modal Custom Template
+    const modal = document.getElementById('modalAddTemplate');
+    const btnOpenModal = document.getElementById('btnOpenAddTemplateModal');
+    const btnCloseModal = document.getElementById('btnCloseAddTemplateModal');
+    const btnCancelModal = document.getElementById('btnCancelTemplate');
+    const selectReplyType = document.getElementById('tplReplyType');
+    const textGroup = document.getElementById('tplTextReplyGroup');
+    const audioGroup = document.getElementById('tplAudioReplyGroup');
+    const btnSaveTemplate = document.getElementById('btnSaveCustomTemplate');
+
+    if (btnOpenModal && modal) {
+      btnOpenModal.addEventListener('click', () => {
+        modal.style.display = 'flex';
+      });
+    }
+
+    const closeModal = () => {
+      if (modal) modal.style.display = 'none';
+      const fLabel = document.getElementById('tplLabel');
+      const fQuestion = document.getElementById('tplQuestion');
+      const fAnswer = document.getElementById('tplAnswerText');
+      const fAudio = document.getElementById('tplAudioFile');
+      if (fLabel) fLabel.value = '';
+      if (fQuestion) fQuestion.value = '';
+      if (fAnswer) fAnswer.value = '';
+      if (fAudio) fAudio.value = '';
+    };
+
+    if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
+    if (btnCancelModal) btnCancelModal.addEventListener('click', closeModal);
+
+    if (selectReplyType) {
+      selectReplyType.addEventListener('change', (e) => {
+        if (e.target.value === 'audio') {
+          if (textGroup) textGroup.style.display = 'block'; // tetap sediakan teks transkrip
+          if (audioGroup) audioGroup.style.display = 'block';
+        } else {
+          if (textGroup) textGroup.style.display = 'block';
+          if (audioGroup) audioGroup.style.display = 'none';
+        }
+      });
+    }
+
+    if (btnSaveTemplate) {
+      btnSaveTemplate.addEventListener('click', async () => {
+        const label = document.getElementById('tplLabel')?.value?.trim();
+        const question = document.getElementById('tplQuestion')?.value?.trim();
+        const answer = document.getElementById('tplAnswerText')?.value?.trim();
+        const audioFileInput = document.getElementById('tplAudioFile');
+        const replyType = selectReplyType?.value || 'text';
+
+        if (!label || !question) {
+          if (window.mociUI) window.mociUI.showToast('Harap isi judul dan pertanyaan template!', 'warning');
+          return;
+        }
+
+        let audioData = null;
+        if (replyType === 'audio' && audioFileInput?.files?.length > 0) {
+          const file = audioFileInput.files[0];
+          audioData = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
+          });
+        }
+
+        const newTemplate = {
+          id: 'custom_tpl_' + Date.now(),
+          label: label,
+          text: question,
+          answer: answer || (replyType === 'audio' ? '🎙️ [Memutar Rekaman Suara Khusus]' : 'Siap! Moci mengerti!'),
+          audioData: audioData,
+          isCustom: true
+        };
+
+        window.mociState.addTemplate(newTemplate);
+        closeModal();
+        if (window.mociUI) {
+          window.mociUI.showToast(`Template "${label}" berhasil disimpan!`, 'success');
+        }
+      });
+    }
+
     // Send button
     document.getElementById('btnSendChat')?.addEventListener('click', () => {
       const val = document.getElementById('chatInput')?.value || '';
