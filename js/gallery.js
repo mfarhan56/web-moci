@@ -105,26 +105,36 @@ class MociGallery {
     const sizeKb = Math.round(file.size / 1024);
     const sizeFormatted = sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`;
 
-    const objectUrl = URL.createObjectURL(file);
-    const newPhoto = {
-      id: 'photo-user-' + Date.now() + Math.random().toString(36).substr(2, 4),
-      name: file.name.replace(/\.[^/.]+$/, ""),
-      url: objectUrl,
-      size: sizeFormatted,
-      date: new Date().toISOString().split('T')[0],
-      location: 'local', // Lokal browser
-      isFavorite: false,
-      rawFile: file,
-      tftCompatible: true
+    // Konversi File ke Data URL (base64) agar tetap tersimpan di localStorage
+    // setelah refresh. Blob URL (createObjectURL) tidak valid setelah reload.
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result; // "data:image/jpeg;base64,..."
+      const newPhoto = {
+        id: 'photo-user-' + Date.now() + Math.random().toString(36).substr(2, 4),
+        name: file.name.replace(/\.[^/.]+$/, ""),
+        url: dataUrl,        // Data URL permanen — persist di localStorage
+        thumb: dataUrl,      // Thumbnail sama
+        size: sizeFormatted,
+        date: new Date().toISOString().split('T')[0],
+        location: 'local',
+        isFavorite: false,
+        rawFile: file,       // File object (hanya tersedia di sesi aktif)
+        tftCompatible: true
+      };
+
+      window.mociState.addPhoto(newPhoto);
+
+      if (window.mociUI) {
+        window.mociUI.showToast(`Foto "${newPhoto.name}" berhasil diunggah ke galeri!`, 'success');
+      }
+
+      this.renderGallery();
     };
-
-    window.mociState.addPhoto(newPhoto);
-
-    if (window.mociUI) {
-      window.mociUI.showToast(`Foto "${newPhoto.name}" berhasil diunggah ke browser!`, 'success');
-    }
-
-    this.renderGallery();
+    reader.onerror = () => {
+      if (window.mociUI) window.mociUI.showToast('Gagal membaca file gambar.', 'error');
+    };
+    reader.readAsDataURL(file); // Baca sebagai base64 Data URL
   }
 
   getFilteredPhotos() {

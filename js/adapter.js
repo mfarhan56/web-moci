@@ -541,35 +541,70 @@ class Esp32SerialAdapter extends DeviceAdapter {
           window.mociUI.showToast(`⏳ Memuat foto "${photo.name}"...`, 'info', 4000);
         }
 
-        // 1. Muat gambar — prioritas rawFile (File object), fallback ke URL
+        // 1. Muat gambar — urutan prioritas: rawFile > data: URL > http/https > blob:
         let imgSource = null;
 
-        // Coba createImageBitmap dari File/Blob object langsung (paling aman, tidak ada CORS)
+        // [A] Prioritas utama: rawFile (File object, hanya tersedia di sesi aktif)
         if (photo.rawFile instanceof Blob) {
           try {
             imgSource = await createImageBitmap(photo.rawFile);
+            console.log('[displayPhoto] Gambar dimuat dari rawFile (Blob).');
           } catch (e) {
-            console.warn('[displayPhoto] createImageBitmap gagal, coba via Image:', e);
+            console.warn('[displayPhoto] createImageBitmap dari rawFile gagal:', e);
           }
         }
 
-        // Fallback: muat via tag <img>
-        if (!imgSource && photo.url) {
-          const img = new Image();
-          // HANYA pasang crossOrigin jika URL eksternal http/https, JANGAN pada blob: atau data:
-          if (photo.url.startsWith('http://') || photo.url.startsWith('https://')) {
-            img.crossOrigin = 'anonymous';
+        // [B] Data URL (base64) — persist di localStorage, paling andal
+        if (!imgSource && photo.url && photo.url.startsWith('data:')) {
+          try {
+            // Konversi data URL -> Blob -> ImageBitmap
+            const res = await fetch(photo.url);
+            const blob = await res.blob();
+            imgSource = await createImageBitmap(blob);
+            console.log('[displayPhoto] Gambar dimuat dari Data URL (base64).');
+          } catch (e) {
+            console.warn('[displayPhoto] Gagal load dari data URL via fetch:', e);
+            // Fallback via Image element
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+              img.onload = () => resolve();
+              img.onerror = () => reject(new Error('Gagal load data URL via Image'));
+              img.src = photo.url;
+            });
+            imgSource = img;
           }
+        }
+
+        // [C] HTTP/HTTPS URL (gambar dari internet)
+        if (!imgSource && photo.url && (photo.url.startsWith('http://') || photo.url.startsWith('https://'))) {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
           await new Promise((resolve, reject) => {
             img.onload = () => resolve();
-            img.onerror = () => reject(new Error('Gagal memuat gambar dari URL: ' + photo.url));
+            img.onerror = () => reject(new Error('Gagal memuat gambar dari: ' + photo.url));
             img.src = photo.url;
           });
           imgSource = img;
+          console.log('[displayPhoto] Gambar dimuat dari URL HTTP.');
+        }
+
+        // [D] Blob URL (hanya valid di sesi aktif, tidak persist setelah refresh)
+        if (!imgSource && photo.url && photo.url.startsWith('blob:')) {
+          try {
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+              img.onload = () => resolve();
+              img.onerror = () => reject(new Error('Blob URL sudah kadaluarsa (expired). Silakan upload ulang foto.'));
+              img.src = photo.url;
+            });
+            imgSource = img;
+          } catch (e) {
+            throw new Error('Foto tidak bisa dimuat — blob URL expired setelah refresh halaman. Silakan hapus dan upload ulang foto ini.');
+          }
         }
 
         if (!imgSource) {
-          throw new Error('Tidak ada sumber gambar yang valid (rawFile atau url).');
+          throw new Error('Tidak ada sumber gambar yang valid. Coba upload ulang foto.');
         }
 
         // 2. Rasterisasi ke canvas 128×160
