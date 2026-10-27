@@ -135,12 +135,24 @@ class MociMascotController {
     // Update TFT mini display preview
     this.renderTftDisplay();
 
-    // Active state on expression buttons
+    // Active state on expression buttons (both control page and chat column)
     document.querySelectorAll('[data-moci-expression]').forEach(btn => {
       if (btn.getAttribute('data-moci-expression') === exprName) {
         btn.classList.add('active');
       } else {
         btn.classList.remove('active');
+      }
+    });
+
+    document.querySelectorAll('.chat-face-btn').forEach(btn => {
+      if (btn.getAttribute('data-expr') === exprName) {
+        btn.classList.add('active');
+        btn.style.borderColor = 'var(--accent-mint)';
+        btn.style.boxShadow = '0 0 10px rgba(0, 245, 212, 0.4)';
+      } else {
+        btn.classList.remove('active');
+        btn.style.borderColor = '';
+        btn.style.boxShadow = '';
       }
     });
 
@@ -171,7 +183,7 @@ class MociMascotController {
   }
 
   blink() {
-    if (this.isBlinking) return;
+    if (this.isBlinking || this.currentExpression === 'sleepy') return;
     this.isBlinking = true;
     const wrappers = document.querySelectorAll('.moci-robot-wrapper, .moci-robot-unit');
     wrappers.forEach(w => w.classList.add('moci-blinking'));
@@ -206,10 +218,12 @@ class MociMascotController {
           </div>
           <div class="moci-robot-unit expression-${this.currentExpression}" style="transform: scale(0.72); margin-top: 10px;">
             <div class="moci-screen-bezel" style="width: 120px; height: 95px;">
+              <div class="moci-face-fx"></div>
               <div class="moci-eyes-container">
                 <div class="moci-eye"></div>
                 <div class="moci-eye"></div>
               </div>
+              <div class="moci-mouth"></div>
             </div>
           </div>
           <div style="font-size: 0.68rem; font-family: monospace; color: var(--accent-mint); margin-top: 6px;">
@@ -226,7 +240,7 @@ class MociMascotController {
     document.addEventListener('click', (e) => {
       const mascot = e.target.closest('.moci-robot-wrapper');
       if (mascot) {
-        const expressions = ['happy', 'excited', 'surprised', 'sleepy', 'neutral'];
+        const expressions = ['happy', 'singing', 'wink', 'love', 'excited', 'surprised', 'sleepy'];
         const nextIndex = (expressions.indexOf(this.currentExpression) + 1) % expressions.length;
         this.setExpression(expressions[nextIndex], true);
       }

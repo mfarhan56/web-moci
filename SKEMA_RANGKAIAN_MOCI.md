@@ -17,6 +17,7 @@
 10. **Potensiometer B100K** (Pengatur Volume Fisik Putar)
 11. **4 Tombol Push Button** (B1: Mode, B2: OK/Action, B3: Next, B4: Power/Sleep)
 12. **Resistor 100kΩ (2 buah)** (Voltage Divider Pembaca Baterai ke ADC)
+13. **Modul Buzzer 3 Kaki** (KY-012 Active / KY-006 Passive Buzzer untuk nada robot & alarm)
 
 ---
 
@@ -156,6 +157,17 @@ Baterai (+) [3.0V - 4.2V]
 Baterai (-) & GND ESP32
 ```
 Rumus konversi firmware: `Voltase_Baterai = (ADC_Reading / 4095.0) * 3.3 * 2.0`
+
+---
+
+### H. Modul Buzzer 3 Kaki (KY-012 / KY-006 Beep & Alarm) ➔ ESP32-S3
+| Pin Modul Buzzer | Pin ESP32-S3 | Keterangan |
+|---|---|---|
+| **S / I/O / Signal** | **GPIO 18** | Sinyal frekuensi nada / chirp robot |
+| **+ / VCC** | **3.3V** (atau 5V) | Daya modul buzzer |
+| **- / GND** | **GND** | Ground bersama |
+
+*Catatan: Modul buzzer 3 kaki biasanya memiliki label pin `S`, `+`, dan `-` pada PCB board modul. Pastikan kabel tidak terbalik.*
 
 ---
 

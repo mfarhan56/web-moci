@@ -1,6 +1,6 @@
 /* ===================================================================
    MASCOT & ROBOT SCREEN STYLES — MOCI COMPANION
-   Interactive animated eyes, expressions, and 128x160 TFT Simulator
+   Interactive animated eyes, expressions, mouth, blush, FX, and TFT Simulator
    =================================================================== */
 
 /* --- ROBOT MASCOT CONTAINER --- */
@@ -30,7 +30,7 @@
   filter: blur(20px);
 }
 
-/* Robot Head Unit */
+/* Robot Head Unit with Natural Living Idle Float */
 .moci-robot-wrapper {
   position: relative;
   display: flex;
@@ -39,22 +39,32 @@
   margin: 10px 0 16px 0;
   cursor: pointer;
   user-select: none;
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: mociIdleFloat 4s infinite ease-in-out;
+}
+
+@keyframes mociIdleFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 .moci-robot-wrapper:hover {
-  transform: scale(1.03);
+  transform: translateY(-8px) scale(1.04);
 }
 
 .moci-robot-wrapper:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 /* Antenna with glowing beacon */
 .moci-antenna {
   width: 6px;
   height: 20px;
-  background: #3a4d70;
+  background: linear-gradient(180deg, #4b638f 0%, #2b3a56 100%);
   border-radius: 3px;
   position: relative;
   margin-bottom: -2px;
@@ -72,6 +82,7 @@
   border-radius: 50%;
   box-shadow: 0 0 12px var(--accent-mint);
   animation: antennaPulse 2.5s infinite;
+  transition: all 0.3s ease;
 }
 
 @keyframes antennaPulse {
@@ -80,8 +91,8 @@
     box-shadow: 0 0 8px var(--accent-mint);
   }
   50% {
-    transform: translateX(-50%) scale(1.2);
-    box-shadow: 0 0 18px var(--accent-mint), 0 0 25px var(--accent-cyan);
+    transform: translateX(-50%) scale(1.25);
+    box-shadow: 0 0 20px var(--accent-mint), 0 0 28px var(--accent-cyan);
   }
 }
 
@@ -89,18 +100,20 @@
 .moci-head-chassis {
   width: 170px;
   height: 140px;
-  background: linear-gradient(160deg, #1f2d48 0%, #131c30 100%);
-  border-radius: 28px;
-  border: 2px solid #2a3c5e;
+  background: linear-gradient(165deg, #243555 0%, #152238 60%, #0d1524 100%);
+  border-radius: 30px;
+  border: 2px solid #364e78;
   padding: 14px;
   box-shadow: 
-    0 14px 28px rgba(0, 0, 0, 0.4),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -4px 6px rgba(0, 0, 0, 0.4);
+    0 16px 32px rgba(0, 0, 0, 0.5),
+    0 0 25px rgba(0, 245, 212, 0.08),
+    inset 0 2px 4px rgba(255, 255, 255, 0.22),
+    inset 0 -5px 8px rgba(0, 0, 0, 0.5);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s ease;
 }
 
 /* Ears / Side Bolt Detail */
@@ -122,15 +135,17 @@
 .moci-screen-bezel {
   width: 100%;
   height: 100%;
-  background: #060a12;
-  border-radius: 18px;
-  border: 1px solid rgba(0, 245, 212, 0.2);
+  background: radial-gradient(circle at 50% 50%, #09121f 0%, #03070d 100%);
+  border-radius: 20px;
+  border: 1.5px solid rgba(0, 245, 212, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.9);
+  box-shadow: 
+    inset 0 0 20px rgba(0, 0, 0, 0.95),
+    0 0 15px rgba(0, 245, 212, 0.12);
 }
 
 /* Subtle CRT Scanline overlay */
@@ -143,13 +158,14 @@
   bottom: 0;
   background: repeating-linear-gradient(
     0deg,
-    rgba(0, 0, 0, 0.15),
-    rgba(0, 0, 0, 0.15) 1px,
+    rgba(0, 0, 0, 0.16),
+    rgba(0, 0, 0, 0.16) 1px,
     transparent 1px,
     transparent 2px
   );
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.55;
+  z-index: 5;
 }
 
 /* Eyes Display Area */
@@ -159,157 +175,797 @@
   justify-content: center;
   gap: 22px;
   z-index: 2;
-  transition: all 0.25s ease;
-}
-
-/* Robot Eye Base (Cyan/Mint Glow) */
-.moci-eye {
-  width: 32px;
-  height: 44px;
-  background: var(--accent-mint);
-  border-radius: 16px;
-  box-shadow: 0 0 16px var(--accent-mint), inset 0 0 6px #fff;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  transition: all 0.28s ease;
 }
 
-/* --- EXPRESSIONS --- */
+/* --- CHEEKS / ROSY BLUSH (Kawaii Robot LED Glow) --- */
+.moci-eyes-container::before,
+.moci-eyes-container::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  width: 16px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 107, 129, 0.9) 0%, rgba(255, 107, 129, 0) 75%);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 2;
+}
 
-/* 1. Neutral (Normal Awake) */
+.moci-eyes-container::before { left: 4px; }
+.moci-eyes-container::after { right: 4px; }
+
+/* Cheeks glow in Happy, Singing, Love, Excited, Wink */
+.expression-happy .moci-eyes-container::before,
+.expression-happy .moci-eyes-container::after,
+.expression-singing .moci-eyes-container::before,
+.expression-singing .moci-eyes-container::after,
+.expression-excited .moci-eyes-container::before,
+.expression-excited .moci-eyes-container::after,
+.expression-wink .moci-eyes-container::before,
+.expression-wink .moci-eyes-container::after {
+  opacity: 0.92;
+  transform: scale(1);
+  animation: cheekPulse 1.8s infinite alternate ease-in-out;
+}
+
+.expression-love .moci-eyes-container::before,
+.expression-love .moci-eyes-container::after {
+  opacity: 1;
+  background: radial-gradient(ellipse at center, rgba(255, 51, 102, 0.95) 0%, rgba(255, 51, 102, 0) 75%);
+  transform: scale(1.2);
+  animation: cheekHeartPulse 0.8s infinite ease-in-out;
+}
+
+@keyframes cheekPulse {
+  0% { opacity: 0.7; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 5px rgba(255, 107, 129, 0.85)); }
+}
+
+@keyframes cheekHeartPulse {
+  0%, 100% { transform: scale(1); opacity: 0.75; }
+  14%, 42% { transform: scale(1.25); opacity: 1; filter: drop-shadow(0 0 8px #ff3366); }
+}
+
+/* --- ROBOT EYE BASE (Glossy OLED with Specular Highlights) --- */
+.moci-eye {
+  width: 34px;
+  height: 46px;
+  background: linear-gradient(180deg, #62ffd8 0%, #00f5d4 50%, #00c9aa 100%);
+  border-radius: 17px;
+  box-shadow: 
+    0 0 20px rgba(0, 245, 212, 0.8), 
+    0 0 35px rgba(0, 245, 212, 0.4),
+    inset 0 0 8px rgba(255, 255, 255, 0.7);
+  transition: all 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glossy glass specular glint (Top-right anime/Cozmo reflection) */
+.moci-eye::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #ffffff;
+  opacity: 0.95;
+  transition: all 0.25s ease;
+  z-index: 3;
+}
+
+/* Secondary tiny reflection glint (Bottom-left sparkle) */
+.moci-eye::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 7px;
+  width: 4px;
+  height: 4px;
+  background: #ffffff;
+  border-radius: 50%;
+  opacity: 0.75;
+  transition: all 0.25s ease;
+  z-index: 3;
+}
+
+/* --- ROBOT MOUTH (Expressive OLED Mouth Display) --- */
+.moci-mouth {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* --- SCREEN PARTICLES / FX OVERLAY --- */
+.moci-face-fx {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* ===================================================================
+   EXPRESSIONS SYSTEM
+   =================================================================== */
+
+/* 1. NEUTRAL (Standby Living Eye) */
 .expression-neutral .moci-eye {
-  height: 42px;
-  border-radius: 15px;
+  height: 44px;
+  border-radius: 16px;
+}
+.expression-neutral .moci-mouth {
+  width: 14px;
+  height: 2.5px;
+  background: var(--accent-mint);
+  border-radius: 2px;
+  opacity: 0.65;
+  box-shadow: 0 0 6px var(--accent-mint);
 }
 
-/* 2. Happy (Curved Smile Eyes) */
+/* 2. HAPPY (Senang: Glowing Arc Smile Eyes, Bouncing Cheeks, Cute Mouth) */
+.expression-happy.moci-robot-wrapper,
+.expression-happy .moci-robot-wrapper {
+  animation: happyHeadWiggle 2.8s infinite ease-in-out;
+}
+@keyframes happyHeadWiggle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-4px) rotate(-1.5deg); }
+  75% { transform: translateY(-4px) rotate(1.5deg); }
+}
+
 .expression-happy .moci-eye {
   height: 24px;
-  border-radius: 20px 20px 0 0;
-  clip-path: ellipse(100% 70% at 50% 100%);
-  background: var(--accent-mint);
-  box-shadow: 0 0 18px var(--accent-mint);
+  border-radius: 22px 22px 0 0;
+  clip-path: ellipse(100% 75% at 50% 100%);
+  background: linear-gradient(180deg, #62ffd8 0%, #00f5d4 100%);
+  box-shadow: 0 0 22px var(--accent-mint), 0 0 38px rgba(0, 245, 212, 0.45);
+  animation: happyEyeSquish 1.4s infinite alternate ease-in-out;
+}
+@keyframes happyEyeSquish {
+  0% { transform: scaleY(1); }
+  100% { transform: scaleY(1.15) translateY(-2px); }
 }
 
-/* 3. Sleepy (Half closed lids) */
+.expression-happy .moci-eye::before {
+  top: 4px;
+  right: 9px;
+  width: 6px;
+  height: 6px;
+}
+.expression-happy .moci-eye::after {
+  opacity: 0;
+}
+
+.expression-happy .moci-mouth {
+  width: 20px;
+  height: 10px;
+  border: 3px solid var(--accent-mint);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  background: rgba(0, 245, 212, 0.15);
+  box-shadow: 0 0 12px rgba(0, 245, 212, 0.7);
+  animation: happyMouthBob 1.4s infinite alternate ease-in-out;
+}
+@keyframes happyMouthBob {
+  0% { transform: translateX(-50%) scale(1); }
+  100% { transform: translateX(-50%) scale(1.15); }
+}
+
+/* 3. SINGING (Menyanyi: Musical Groove, Equalizer, Floating Notes) */
+.expression-singing.moci-robot-wrapper,
+.expression-singing .moci-robot-wrapper {
+  animation: singingHeadBob 0.5s infinite alternate ease-in-out;
+}
+@keyframes singingHeadBob {
+  0% { transform: translateY(0) rotate(-2deg); }
+  100% { transform: translateY(-7px) rotate(2deg); }
+}
+
+.expression-singing .moci-antenna-tip {
+  animation: singingAntenna 0.5s infinite alternate ease-in-out;
+}
+@keyframes singingAntenna {
+  0% { background: var(--accent-mint); box-shadow: 0 0 15px var(--accent-mint); }
+  100% { background: #ff70a6; box-shadow: 0 0 25px #ff70a6, 0 0 35px #9b5de5; }
+}
+
+.expression-singing .moci-eye {
+  height: 23px;
+  border-radius: 20px 20px 0 0;
+  clip-path: ellipse(100% 75% at 50% 100%);
+  background: linear-gradient(180deg, #62ffd8 0%, #00f5d4 100%);
+  box-shadow: 0 0 22px var(--accent-mint), 0 0 35px rgba(189, 0, 255, 0.4);
+  animation: singingEyeGroove 0.5s infinite alternate ease-in-out;
+}
+@keyframes singingEyeGroove {
+  0% { transform: scale(1) rotate(-3deg); }
+  100% { transform: scale(1.12) rotate(4deg); }
+}
+
+.expression-singing .moci-eye::before {
+  top: 3px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+}
+.expression-singing .moci-eye::after {
+  opacity: 0;
+}
+
+.expression-singing .moci-mouth {
+  width: 16px;
+  height: 20px;
+  background: #060a12;
+  border: 3px solid var(--accent-mint);
+  border-radius: 50%;
+  box-shadow: 0 0 14px var(--accent-mint), inset 0 0 6px rgba(0, 245, 212, 0.5);
+  animation: singingMouthO 0.45s infinite alternate ease-in-out;
+}
+@keyframes singingMouthO {
+  0% { transform: translateX(-50%) scale(0.85); border-color: var(--accent-mint); }
+  100% { transform: translateX(-50%) scale(1.25); border-color: #ff70a6; box-shadow: 0 0 18px #ff70a6; }
+}
+
+/* Floating musical notes inside screen */
+.expression-singing .moci-face-fx::before {
+  content: "♪";
+  position: absolute;
+  top: 14px;
+  left: 18px;
+  font-size: 16px;
+  color: #00f5d4;
+  text-shadow: 0 0 8px #00f5d4;
+  animation: floatNote1 1.8s infinite linear;
+}
+.expression-singing .moci-face-fx::after {
+  content: "♫";
+  position: absolute;
+  top: 24px;
+  right: 18px;
+  font-size: 18px;
+  color: #ff70a6;
+  text-shadow: 0 0 10px #ff70a6;
+  animation: floatNote2 2.1s infinite linear 0.4s;
+}
+
+@keyframes floatNote1 {
+  0% { transform: translateY(20px) rotate(-10deg) scale(0.6); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(-16px) rotate(15deg) scale(1.1); opacity: 0; }
+}
+@keyframes floatNote2 {
+  0% { transform: translateY(22px) rotate(10deg) scale(0.6); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(-18px) rotate(-15deg) scale(1.2); opacity: 0; }
+}
+
+/* 4. WINK (Kedip: Star Sparkle Burst & Playful Smile) */
+.expression-wink.moci-robot-wrapper,
+.expression-wink .moci-robot-wrapper {
+  animation: winkHeadCock 1.8s infinite alternate ease-in-out;
+}
+@keyframes winkHeadCock {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(3deg) translateY(-3px); }
+}
+
+/* Left eye: closed wink crescent */
+.expression-wink .moci-eye:first-child {
+  height: 6px;
+  margin-top: 18px;
+  background: var(--accent-mint);
+  border-radius: 4px;
+  box-shadow: 0 0 14px var(--accent-mint);
+}
+.expression-wink .moci-eye:first-child::before {
+  display: none;
+}
+/* Star sparkle popping on the wink eye */
+.expression-wink .moci-eye:first-child::after {
+  content: "★";
+  position: absolute;
+  top: -16px;
+  right: -9px;
+  font-size: 16px;
+  color: #ffffff;
+  text-shadow: 0 0 8px var(--accent-mint), 0 0 16px #ffffff;
+  animation: winkStarBurst 1s infinite alternate ease-in-out;
+  opacity: 1;
+  width: auto;
+  height: auto;
+  background: transparent;
+}
+@keyframes winkStarBurst {
+  0% { transform: scale(0.7) rotate(0deg); opacity: 0.6; }
+  100% { transform: scale(1.25) rotate(25deg); opacity: 1; }
+}
+
+/* Right eye: sparkling open */
+.expression-wink .moci-eye:last-child {
+  height: 44px;
+  border-radius: 17px;
+  animation: winkRightEyeBounce 1.8s infinite alternate ease-in-out;
+}
+@keyframes winkRightEyeBounce {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08); }
+}
+
+.expression-wink .moci-mouth {
+  width: 18px;
+  height: 9px;
+  border: 2.5px solid var(--accent-mint);
+  border-top: none;
+  border-radius: 0 0 14px 6px;
+  transform: translateX(-40%) rotate(-6deg);
+  box-shadow: 0 0 8px var(--accent-mint);
+}
+
+/* 5. LOVE (Cinta: True 3D Pulsing Heart Eyes, Floating Hearts, Sweet Smile) */
+.expression-love.moci-robot-wrapper,
+.expression-love .moci-robot-wrapper {
+  animation: loveHeadSway 2.4s infinite ease-in-out;
+}
+@keyframes loveHeadSway {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-4px) rotate(-2deg); }
+  75% { transform: translateY(-4px) rotate(2deg); }
+}
+
+.expression-love .moci-antenna-tip {
+  background: #ff4d6d;
+  box-shadow: 0 0 18px #ff4d6d, 0 0 30px #ff758f;
+  animation: loveAntenna 0.8s infinite ease-in-out;
+}
+@keyframes loveAntenna {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  14%, 42% { transform: translateX(-50%) scale(1.25); }
+}
+
+.expression-love .moci-eye {
+  width: 25px;
+  height: 25px;
+  background: #ff3366;
+  position: relative;
+  transform: rotate(-45deg);
+  border-radius: 4px;
+  box-shadow: 0 0 24px #ff3366, 0 0 42px rgba(255, 51, 102, 0.6);
+  animation: heartThrob 0.8s infinite ease-in-out;
+  margin-top: 6px;
+  overflow: visible;
+}
+.expression-love .moci-eye::before {
+  content: "";
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  top: -12px;
+  left: 0;
+  border-radius: 50%;
+  background: #ff4d79;
+  box-shadow: 0 0 12px rgba(255, 51, 102, 0.5);
+  opacity: 1;
+}
+.expression-love .moci-eye::after {
+  content: "";
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  top: 0;
+  right: -12px;
+  border-radius: 50%;
+  background: #ff4d79;
+  box-shadow: 0 0 12px rgba(255, 51, 102, 0.5);
+  opacity: 1;
+}
+
+@keyframes heartThrob {
+  0% { transform: rotate(-45deg) scale(0.92); }
+  14% { transform: rotate(-45deg) scale(1.18); }
+  28% { transform: rotate(-45deg) scale(0.98); }
+  42% { transform: rotate(-45deg) scale(1.24); }
+  70%, 100% { transform: rotate(-45deg) scale(0.92); }
+}
+
+.expression-love .moci-mouth {
+  width: 14px;
+  height: 8px;
+  border: 2.5px solid #ff758f;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 0 10px rgba(255, 117, 143, 0.8);
+  animation: loveMouthPucker 0.8s infinite ease-in-out;
+}
+@keyframes loveMouthPucker {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  14%, 42% { transform: translateX(-50%) scale(1.2); }
+}
+
+/* Floating mini hearts in screen */
+.expression-love .moci-face-fx::before {
+  content: "♥";
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  font-size: 15px;
+  color: #ff758f;
+  text-shadow: 0 0 8px #ff758f;
+  animation: floatHeart1 2.2s infinite ease-out;
+}
+.expression-love .moci-face-fx::after {
+  content: "♥";
+  position: absolute;
+  top: 24px;
+  right: 18px;
+  font-size: 19px;
+  color: #ff3366;
+  text-shadow: 0 0 10px #ff3366;
+  animation: floatHeart2 2.5s infinite ease-out 0.6s;
+}
+
+@keyframes floatHeart1 {
+  0% { transform: translateY(22px) scale(0.6); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: translateY(-18px) scale(1.2); opacity: 0; }
+}
+@keyframes floatHeart2 {
+  0% { transform: translateY(24px) scale(0.6); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: translateY(-20px) scale(1.3); opacity: 0; }
+}
+
+/* 6. SURPRISED (Kaget: Dilated Shock Eyes, Shock Jolt, Exclamation Mark) */
+.expression-surprised.moci-robot-wrapper,
+.expression-surprised .moci-robot-wrapper {
+  animation: surprisedJolt 0.4s ease-out;
+}
+@keyframes surprisedJolt {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-9px) scale(1.08); }
+  70% { transform: translateY(-4px) scale(1.02); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.expression-surprised .moci-antenna-tip {
+  background: #ffbe0b;
+  box-shadow: 0 0 20px #ffbe0b, 0 0 32px #ff0055;
+  animation: antennaShock 0.25s infinite alternate ease-in-out;
+}
+@keyframes antennaShock {
+  0% { transform: translateX(-50%) scale(1); }
+  100% { transform: translateX(-50%) scale(1.3); }
+}
+
+.expression-surprised .moci-eye {
+  width: 42px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 45%, #ffffff 0%, #b3fff2 40%, #00f5d4 100%);
+  box-shadow: 0 0 26px #ffffff, 0 0 45px var(--accent-mint);
+  animation: surprisedEyeJitter 1s infinite alternate ease-in-out;
+}
+@keyframes surprisedEyeJitter {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.06); }
+}
+
+.expression-surprised .moci-mouth {
+  width: 14px;
+  height: 18px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 14px #ffffff, 0 0 22px var(--accent-mint);
+  animation: surprisedMouthJolt 0.4s ease-out;
+}
+@keyframes surprisedMouthJolt {
+  0% { transform: translateX(-50%) scale(0.5); }
+  60% { transform: translateX(-50%) scale(1.25); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+
+.expression-surprised .moci-face-fx::before {
+  content: "!";
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 900;
+  color: #ffbe0b;
+  text-shadow: 0 0 10px #ffbe0b, 0 0 20px #ff0055;
+  animation: exclamationPop 0.8s infinite alternate ease-in-out;
+}
+@keyframes exclamationPop {
+  0% { transform: translateX(-50%) scale(0.8); opacity: 0.7; }
+  100% { transform: translateX(-50%) scale(1.3); opacity: 1; }
+}
+
+/* 7. SLEEPY / TIDUR (Mengantuk: Calm Slit Eyes, Slow Deep Breathing, Floating Zzz) */
+.expression-sleepy.moci-robot-wrapper,
+.expression-sleepy .moci-robot-wrapper {
+  animation: sleepBreathing 4s infinite ease-in-out;
+}
+@keyframes sleepBreathing {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(4px) scale(0.985); }
+}
+
+.expression-sleepy .moci-antenna-tip {
+  background: #0077b6;
+  box-shadow: 0 0 8px #0077b6;
+  animation: sleepAntenna 4s infinite ease-in-out;
+}
+@keyframes sleepAntenna {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.85; box-shadow: 0 0 14px #00bbf9; }
+}
+
 .expression-sleepy .moci-eye {
-  height: 14px;
+  height: 8px;
   border-radius: 4px;
   background: #00bbf9;
-  box-shadow: 0 0 10px #00bbf9;
+  box-shadow: 0 0 12px #00bbf9;
+  animation: sleepyDroop 4s infinite ease-in-out;
+  margin-top: 16px;
+}
+.expression-sleepy .moci-eye::before,
+.expression-sleepy .moci-eye::after {
+  display: none;
+}
+@keyframes sleepyDroop {
+  0%, 100% { height: 8px; }
+  50% { height: 5px; opacity: 0.7; }
 }
 
-/* 4. Sad (Curved down) */
+.expression-sleepy .moci-mouth {
+  width: 12px;
+  height: 2.5px;
+  background: #00bbf9;
+  border-radius: 2px;
+  box-shadow: 0 0 8px #00bbf9;
+  opacity: 0.75;
+}
+
+/* Floating Zzz */
+.expression-sleepy .moci-face-fx::before {
+  content: "Z";
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 16px;
+  color: #00bbf9;
+  text-shadow: 0 0 8px #00bbf9;
+  animation: floatZzz1 2.8s infinite ease-out;
+}
+.expression-sleepy .moci-face-fx::after {
+  content: "z";
+  position: absolute;
+  top: 32px;
+  right: 36px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 12px;
+  color: #3a86ff;
+  text-shadow: 0 0 6px #3a86ff;
+  animation: floatZzz2 2.8s infinite ease-out 0.9s;
+}
+
+@keyframes floatZzz1 {
+  0% { transform: translate(0, 16px) scale(0.6); opacity: 0; }
+  30% { opacity: 0.9; }
+  100% { transform: translate(14px, -18px) scale(1.15); opacity: 0; }
+}
+@keyframes floatZzz2 {
+  0% { transform: translate(0, 16px) scale(0.6); opacity: 0; }
+  30% { opacity: 0.85; }
+  100% { transform: translate(12px, -16px) scale(1.1); opacity: 0; }
+}
+
+/* 8. EXCITED (Semangat: Starry Twinkle Eyes & Energetic Hop) */
+.expression-excited.moci-robot-wrapper,
+.expression-excited .moci-robot-wrapper {
+  animation: excitedHop 0.4s infinite alternate ease-in-out;
+}
+@keyframes excitedHop {
+  0% { transform: translateY(0) scaleY(1); }
+  100% { transform: translateY(-6px) scaleY(1.05); }
+}
+
+.expression-excited .moci-eye {
+  height: 42px;
+  background: linear-gradient(180deg, #ffd166 0%, #00f5d4 100%);
+  box-shadow: 0 0 24px #ffd166, 0 0 35px var(--accent-mint);
+  animation: excitedEyeBounce 0.4s infinite alternate ease-in-out;
+}
+@keyframes excitedEyeBounce {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.12); }
+}
+
+.expression-excited .moci-mouth {
+  width: 22px;
+  height: 12px;
+  background: var(--accent-mint);
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 0 14px var(--accent-mint);
+  animation: excitedMouthOpen 0.4s infinite alternate ease-in-out;
+}
+@keyframes excitedMouthOpen {
+  0% { transform: translateX(-50%) scale(0.9); }
+  100% { transform: translateX(-50%) scale(1.2); }
+}
+
+.expression-excited .moci-face-fx::before {
+  content: "✦";
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  font-size: 16px;
+  color: #ffd166;
+  text-shadow: 0 0 10px #ffd166;
+  animation: sparkleTwinkle 1s infinite alternate ease-in-out;
+}
+.expression-excited .moci-face-fx::after {
+  content: "✧";
+  position: absolute;
+  top: 20px;
+  right: 16px;
+  font-size: 14px;
+  color: #00f5d4;
+  text-shadow: 0 0 10px #00f5d4;
+  animation: sparkleTwinkle 1s infinite alternate ease-in-out 0.5s;
+}
+@keyframes sparkleTwinkle {
+  0% { transform: scale(0.7) rotate(0deg); opacity: 0.5; }
+  100% { transform: scale(1.3) rotate(45deg); opacity: 1; }
+}
+
+/* 9. SAD (Sedih: Droopy Eyes & Tear Drop) */
+.expression-sad.moci-robot-wrapper,
+.expression-sad .moci-robot-wrapper {
+  animation: sadHeadDroop 3s infinite ease-in-out;
+}
+@keyframes sadHeadDroop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px) rotate(-1deg); }
+}
+
 .expression-sad .moci-eye {
   height: 24px;
   border-radius: 0 0 20px 20px;
   clip-path: ellipse(100% 70% at 50% 0%);
   background: #00bbf9;
+  box-shadow: 0 0 16px #00bbf9;
+}
+.expression-sad .moci-mouth {
+  width: 18px;
+  height: 8px;
+  border: 2.5px solid #00bbf9;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 0 8px #00bbf9;
+}
+.expression-sad .moci-face-fx::before {
+  content: "💧";
+  position: absolute;
+  top: 48px;
+  right: 32px;
+  font-size: 12px;
+  opacity: 0.85;
+  animation: tearDrip 1.8s infinite ease-in;
+}
+@keyframes tearDrip {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(22px) scale(1); opacity: 0; }
 }
 
-/* 5. Surprised / Big Eyes */
-.expression-surprised .moci-eye {
-  width: 40px;
-  height: 52px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 24px #fff, 0 0 35px var(--accent-mint);
+/* 10. ANGRY (Marah: Sharp Furrowed Angles & Warning Pulse) */
+.expression-angry.moci-robot-wrapper,
+.expression-angry .moci-robot-wrapper {
+  animation: angryShake 0.4s infinite ease-in-out;
+}
+@keyframes angryShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-1.5px); }
+  75% { transform: translateX(1.5px); }
 }
 
-/* 6. Blink Animation */
-.moci-blinking .moci-eye {
-  height: 4px !important;
-  margin-top: 20px;
-  transition: height 0.08s ease;
+.expression-angry .moci-antenna-tip {
+  background: #ff0055;
+  box-shadow: 0 0 20px #ff0055;
+  animation: angryAntennaStrobe 0.2s infinite alternate;
+}
+@keyframes angryAntennaStrobe {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
 }
 
-/* 7. Excited / Starry */
-.expression-excited .moci-eye {
-  height: 38px;
-  animation: excitedBounce 0.4s infinite alternate ease-in-out;
-}
-
-@keyframes excitedBounce {
-  0% { transform: translateY(0) scaleY(1); }
-  100% { transform: translateY(-4px) scaleY(1.15); }
-}
-
-/* 8. Singing / Musical Vibe (Saat Memutar Lagu) */
-.expression-singing .moci-eye {
-  height: 22px;
-  border-radius: 18px 18px 0 0;
-  clip-path: ellipse(100% 75% at 50% 100%);
-  background: var(--accent-mint);
-  box-shadow: 0 0 20px var(--accent-mint), 0 0 35px rgba(0, 245, 160, 0.4);
-  animation: singingGroove 0.55s infinite alternate ease-in-out;
-}
-
-.expression-singing .moci-robot-unit {
-  animation: robotSingBob 0.55s infinite alternate ease-in-out;
-}
-
-@keyframes singingGroove {
-  0% { transform: scale(1) rotate(-3deg); }
-  50% { transform: scale(1.15) rotate(0deg); }
-  100% { transform: scale(1) rotate(4deg); }
-}
-
-@keyframes robotSingBob {
-  0% { transform: translateY(0) rotate(-1.5deg); }
-  100% { transform: translateY(-8px) rotate(1.5deg); }
-}
-
-/* 9. Angry / Marah */
 .expression-angry .moci-eye {
   height: 26px;
   background: #ff4d6d;
-  box-shadow: 0 0 20px #ff4d6d;
+  box-shadow: 0 0 22px #ff4d6d;
   clip-path: polygon(0% 0%, 100% 35%, 100% 100%, 0% 100%);
 }
 .expression-angry .moci-eye:nth-child(2) {
   clip-path: polygon(0% 35%, 100% 0%, 100% 100%, 0% 100%);
 }
-
-/* 10. Love / Hati */
-.expression-love .moci-eye {
-  height: 32px;
-  background: #ff758f;
-  box-shadow: 0 0 22px #ff758f;
-  border-radius: 50% 50% 0 0;
-  clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 50% 75%, 18% 100%, 0% 35%);
-  animation: heartPulse 0.7s infinite alternate ease-in-out;
+.expression-angry .moci-mouth {
+  width: 18px;
+  height: 3px;
+  background: #ff4d6d;
+  box-shadow: 0 0 10px #ff4d6d;
+  transform: translateX(-50%) rotate(-3deg);
 }
-@keyframes heartPulse {
-  0% { transform: scale(0.92); }
-  100% { transform: scale(1.12); }
+.expression-angry .moci-face-fx::before {
+  content: "💢";
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 15px;
+  animation: angryPulse 0.5s infinite alternate ease-in-out;
 }
-
-/* 11. Wink / Kedip Satu Mata */
-.expression-wink .moci-eye:first-child {
-  height: 5px;
-  margin-top: 18px;
-  background: var(--accent-mint);
-  border-radius: 4px;
-}
-.expression-wink .moci-eye:last-child {
-  height: 24px;
-  border-radius: 20px 20px 0 0;
-  clip-path: ellipse(100% 70% at 50% 100%);
-  background: var(--accent-mint);
+@keyframes angryPulse {
+  0% { transform: scale(0.8); }
+  100% { transform: scale(1.2); }
 }
 
-/* 12. Talking / Sedang Bicara */
+/* 11. TALKING (Sedang Bicara: Responsive Mouth Pulse) */
 .expression-talking .moci-eye {
-  height: 26px;
-  border-radius: 12px;
+  height: 36px;
+  border-radius: 14px;
   background: var(--accent-mint);
   animation: talkingBlink 0.35s infinite alternate ease-in-out;
 }
 @keyframes talkingBlink {
-  0% { transform: scaleY(0.7); }
-  100% { transform: scaleY(1.1); }
+  0% { transform: scaleY(0.85); }
+  100% { transform: scaleY(1.05); }
+}
+.expression-talking .moci-mouth {
+  width: 18px;
+  height: 10px;
+  background: var(--accent-mint);
+  border-radius: 6px;
+  animation: talkingMouthSync 0.28s infinite alternate ease-in-out;
+  box-shadow: 0 0 10px var(--accent-mint);
+}
+@keyframes talkingMouthSync {
+  0% { height: 3px; border-radius: 2px; }
+  100% { height: 12px; border-radius: 8px; }
 }
 
-/* Voice / Audio reaction wave inside screen */
+/* 12. SMOOTH BLINKING ANIMATION (Hardware-Accelerated Scale) */
+.moci-blinking .moci-eye {
+  transform: scaleY(0.06) !important;
+  transition: transform 0.08s ease-in-out !important;
+  box-shadow: 0 0 8px var(--accent-mint) !important;
+}
+.moci-blinking .moci-eye::before,
+.moci-blinking .moci-eye::after {
+  opacity: 0 !important;
+  transition: opacity 0.05s ease !important;
+}
+
+/* --- VOICE / AUDIO REACTION WAVE INSIDE SCREEN --- */
 .moci-voice-meter {
   position: absolute;
   bottom: 8px;
@@ -353,6 +1009,7 @@
   margin-top: 10px;
   box-shadow: var(--shadow-sm);
   max-width: 240px;
+  transition: all 0.25s ease;
 }
 
 .moci-speech-bubble::before {

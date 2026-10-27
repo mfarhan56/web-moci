@@ -529,7 +529,123 @@ class Esp32SerialAdapter extends DeviceAdapter {
   }
 
   async displayPhoto(photo) {
-    if (this.isConnected) {
+    if (!this.isConnected) {
+      if (window.mociUI) window.mociUI.showToast('ESP32 belum terhubung melalui kabel USB Serial.', 'warning');
+      return { success: false, type: 'serial' };
+    }
+
+    // Proses jika ada rawFile ATAU url yang valid
+    if (photo && (photo.rawFile || photo.url)) {
+      try {
+        if (window.mociUI) {
+          window.mociUI.showToast(`⏳ Memuat foto "${photo.name}"...`, 'info', 4000);
+        }
+
+        // 1. Muat gambar — prioritas rawFile (File object), fallback ke URL
+        let imgSource = null;
+
+        // Coba createImageBitmap dari File/Blob object langsung (paling aman, tidak ada CORS)
+        if (photo.rawFile instanceof Blob) {
+          try {
+            imgSource = await createImageBitmap(photo.rawFile);
+          } catch (e) {
+            console.warn('[displayPhoto] createImageBitmap gagal, coba via Image:', e);
+          }
+        }
+
+        // Fallback: muat via tag <img>
+        if (!imgSource && photo.url) {
+          const img = new Image();
+          // HANYA pasang crossOrigin jika URL eksternal http/https, JANGAN pada blob: atau data:
+          if (photo.url.startsWith('http://') || photo.url.startsWith('https://')) {
+            img.crossOrigin = 'anonymous';
+          }
+          await new Promise((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = () => reject(new Error('Gagal memuat gambar dari URL: ' + photo.url));
+            img.src = photo.url;
+          });
+          imgSource = img;
+        }
+
+        if (!imgSource) {
+          throw new Error('Tidak ada sumber gambar yang valid (rawFile atau url).');
+        }
+
+        // 2. Rasterisasi ke canvas 128×160
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 160;
+        const ctx = canvas.getContext('2d');
+
+        // Latar hitam
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, 128, 160);
+
+        // Skala Aspect Fill / Cover pas di 128 x 160
+        const srcW = imgSource.naturalWidth || imgSource.width || 128;
+        const srcH = imgSource.naturalHeight || imgSource.height || 160;
+        const scale = Math.max(128 / srcW, 160 / srcH);
+        const w = srcW * scale;
+        const h = srcH * scale;
+        const x = (128 - w) / 2;
+        const y = (160 - h) / 2;
+
+        ctx.drawImage(imgSource, x, y, w, h);
+        const imgData = ctx.getImageData(0, 0, 128, 160);
+        const d = imgData.data;
+
+        // 3. Beritahu ESP32 bahwa transfer gambar dimulai
+        await this.sendLine('#IMG:START:' + (photo.name || 'Foto'));
+        await new Promise(r => setTimeout(r, 80)); // Beri waktu ESP32 siap & bersihkan layar
+
+        const encoder = new TextEncoder();
+
+        // 4. Kirim data piksel baris demi baris (160 baris × 128 piksel/baris = 512 karakter hex)
+        for (let row = 0; row < 160; row++) {
+          let hex = '';
+          for (let col = 0; col < 128; col++) {
+            const idx = (row * 128 + col) * 4;
+            const red   = d[idx];
+            const green = d[idx + 1];
+            const blue  = d[idx + 2];
+            // Konversi RGB888 → RGB565 16-bit
+            const rgb565 = ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
+            hex += rgb565.toString(16).padStart(4, '0');
+          }
+
+          // Kirim baris ke ESP32 via serial writer langsung
+          const rowLine = `#ROW:${row}:${hex}\n`;
+          await this.writer.write(encoder.encode(rowLine));
+
+          // Jeda per baris: 20ms cukup untuk ESP32 decode + SPI write ST7735
+          await new Promise(res => setTimeout(res, 20));
+
+          // Update progress toast setiap 32 baris
+          if (window.mociUI && (row === 32 || row === 64 || row === 96 || row === 128)) {
+            const pct = Math.round((row / 160) * 100);
+            window.mociUI.showToast(`📡 Mengirim foto ke TFT... ${pct}%`, 'info', 2000);
+          }
+        }
+
+        // 5. Selesai transfer
+        await new Promise(r => setTimeout(r, 80));
+        await this.sendLine('#IMG:END');
+
+        if (window.mociUI) {
+          window.mociUI.showToast(`✅ Foto "${photo.name}" berhasil tampil di layar TFT!`, 'success');
+        }
+        return { success: true, type: 'serial' };
+      } catch (err) {
+        console.error('[displayPhoto] Gagal mengirim piksel foto ke TFT:', err);
+        if (window.mociUI) {
+          window.mociUI.showToast(`❌ Gagal kirim foto: ${err.message}`, 'error');
+        }
+        // Fallback kirim perintah nama foto saja
+        await this.sendLine(JSON.stringify({ cmd: 'photo', name: photo.name }));
+      }
+    } else {
+      // Tidak ada data gambar, kirim nama saja (fallback placeholder)
       await this.sendLine(JSON.stringify({ cmd: 'photo', name: photo.name }));
     }
     return { success: true, type: 'serial' };
